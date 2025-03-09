@@ -1,10 +1,10 @@
-package com.fintechnic.banking_app;
+package com.fintechnic.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BankingAppApplicationTests {
+class BackendApplicationTests {
 
 	@Test
 	void contextLoads() {

@@ -1,13 +1,13 @@
-package com.fintechnic.banking_app;
+package com.fintechnic.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BankingAppApplication {
+public class BackendApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BankingAppApplication.class, args);
+		SpringApplication.run(BackendApplication.class, args);
 	}
 
 }
