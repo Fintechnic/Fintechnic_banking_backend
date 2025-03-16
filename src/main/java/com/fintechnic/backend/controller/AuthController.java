@@ -35,8 +35,28 @@ public class AuthController {
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
             response.put("role", user.getRole()); // Include role in response
+            response.put("accountLocked", user.getAccountLocked());
     
             return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser(@RequestBody Map<String, String> request) {
+        try {
+            userService.logoutUser(request.get("username"));
+            return ResponseEntity.ok("User logged out successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/unlock")
+    public ResponseEntity<?> unlockUser(@RequestBody Map<String, String> request) {
+        try {
+            userService.unlockUser(request.get("username"));
+            return ResponseEntity.ok("User account unlocked successfully.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
