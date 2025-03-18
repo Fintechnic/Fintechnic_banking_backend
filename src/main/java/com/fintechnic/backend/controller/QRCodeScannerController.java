@@ -1,20 +1,27 @@
 package com.fintechnic.backend.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fintechnic.backend.model.User;
 import com.fintechnic.backend.service.QRCodeService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
+import com.fintechnic.backend.util.CryptoUtil;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
-import java.util.Date;
+import java.util.Map;
+import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/qrcode")
 public class QRCodeScannerController {
@@ -29,28 +36,46 @@ public class QRCodeScannerController {
     @GetMapping("/scanner")
     public ResponseEntity<?> scanQRCode(@RequestParam String token) {
         try {
-            Claims transactionInformation = qrCodeService.decryptingInformation(secretKey, token);
+            String transactionInformation = CryptoUtil.decrypt(token);
+            log.info("Decrypted data: {}", transactionInformation);
 
-            long userId = Long.parseLong(transactionInformation.get("userId").toString());
-            Date expirationDate = transactionInformation.getExpiration();
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> json = objectMapper.readValue(transactionInformation, Map.class);
 
-            if (expirationDate.before(new Date())) {
+            Object userIdObj = json.get("userId");
+            long userId;
+            if (userIdObj instanceof Integer) {
+                userId = ((Integer) userIdObj).longValue();
+            } else if (userIdObj instanceof Long) {
+                userId = (Long) userIdObj;
+            } else {
                 return ResponseEntity.badRequest()
-                        .body("Expired QR code");
+                        .body("Invalid userId format in token.");
+            }
+
+            Optional<User> user = qrCodeService.getUserById(userId);
+            if (user.isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body("User not found.");
             }
 
             return ResponseEntity.ok()
-                    .body("Scan successfully " + userId);
+                    .body("Scan successful! " + json);
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest()
+                    .body("Invalid token format.");
 
-        } catch (SignatureException e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                    .body("Invalid key");
-        } catch (ExpiredJwtException e) {
+                    .body("Invalid userId format in token.");
+
+        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             return ResponseEntity.badRequest()
-                    .body("Expired token");
+                    .body("Decryption failed. Invalid token.");
+
         } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body("Something went wrong");
+            return ResponseEntity.internalServerError()
+                    .body("Scan unsuccessful due to an internal error.");
         }
     }
 }
