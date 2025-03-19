@@ -3,6 +3,8 @@ package com.fintechnic.backend.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -25,4 +27,19 @@ public class User {
 
     @Column
     private String role = "USER";
+
+
+    @Column(nullable = false)
+    private int failedLoginAttempts = 0;
+
+    @Column
+    private Boolean accountLocked = false;
+
+    @Column
+    private LocalDateTime lastFailedLogin;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<String> activeTokens = new HashSet<>();
+
+
 }
