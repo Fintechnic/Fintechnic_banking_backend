@@ -1,9 +1,11 @@
 package com.fintechnic.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -41,5 +43,7 @@ public class User {
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> activeTokens = new HashSet<>();
 
-
+    @JsonIgnore // ngăn việc json bị đệ quy
+    @OneToMany(mappedBy = "user")
+    private List<Transaction> transactions;
 }
