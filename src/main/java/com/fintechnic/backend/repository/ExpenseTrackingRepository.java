@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ExpenseTrackingRepository extends JpaRepository<Transaction, Long> {
-    List<Transaction> findByUserId(Long userId);
+    List<Transaction> findTransactionsByUserId(Long userId);
 }
