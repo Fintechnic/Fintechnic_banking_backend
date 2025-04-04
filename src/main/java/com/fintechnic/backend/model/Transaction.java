@@ -2,7 +2,9 @@ package com.fintechnic.backend.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "transaction")
@@ -10,18 +12,16 @@ import java.time.LocalDateTime;
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long TransactionId;
-
+    private Long TransactionId;
 
     @ManyToOne
     @JoinColumn(name = "user_id") // tạo ra một biến user_id trong Transaction có reference tới id của class User
     private User user;
 
-
     //Field Tpe
     @Enumerated(EnumType.STRING)
     @Column
-    private TransactionType type;
+    private TransactionType transactionType;
 
     //Field Status
     @Enumerated(EnumType.STRING)
@@ -30,7 +30,7 @@ public class Transaction {
 
     //Field Amnout
     @Column
-    private Double amount;
+    private BigDecimal amount;
 
     //Field Description
     @Column
@@ -45,5 +45,4 @@ public class Transaction {
             this.status = TransactionStatus.PENDING; // Mặc định là PENDING
         }
     }
-
 }

@@ -1,7 +1,8 @@
 package com.fintechnic.backend.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fintechnic.backend.service.QRCodeService;
-import com.google.zxing.WriterException;
+import com.fintechnic.backend.util.CryptoUtil;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.http.MediaType;
@@ -9,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.SecretKey;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,17 +26,20 @@ public class QRCodeController {
     }
 
     @GetMapping("/myqrcode")
-    public ResponseEntity<byte[]> getQRCode(@RequestParam Long userId) throws IOException, WriterException {
+    public ResponseEntity<byte[]> getQRCode(@RequestParam Long userId) throws Exception {
         Date expirationDate = new Date(System.currentTimeMillis() + 5 * 60 * 1000);
 
         Map<String, Object> transactionData = new HashMap<>();
         transactionData.put("userId", userId);
         transactionData.put("exp", expirationDate);
 
-        // mã hóa dữ thành jwt token
-        String encodedData = qrCodeService.encodingInformation(transactionData, expirationDate, secretKey);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = objectMapper.writeValueAsString(transactionData);
 
-        byte[] qrCode = qrCodeService.generateQRCode(encodedData, 200, 200);
+        // mã hóa dữ liệu
+        String encryptedData = CryptoUtil.encrypt(jsonString);
+
+        byte[] qrCode = qrCodeService.generateQRCode(encryptedData, 200, 200);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_PNG)
