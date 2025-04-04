@@ -36,7 +36,7 @@ public class QRCodeController {
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(transactionData);
 
-        // mã hóa dữ thành jwt token
+        // mã hóa dữ liệu
         String encryptedData = CryptoUtil.encrypt(jsonString);
 
         byte[] qrCode = qrCodeService.generateQRCode(encryptedData, 200, 200);
