@@ -2,5 +2,5 @@ package com.fintechnic.backend.model;
 
 public enum TransactionType {
     TRANSFER,
-    RECEIVE,
+    RECEIVE
 }
