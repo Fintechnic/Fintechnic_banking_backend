@@ -2,7 +2,10 @@ package com.fintechnic.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +27,12 @@ public class User {
     
     @Column(nullable = false, unique = true)
     private String email;
+
+    @Column
+    private String accountNumber; // số tài khoản
+
+    @Column
+    private BigDecimal balance = BigDecimal.valueOf(0); // số dư
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
