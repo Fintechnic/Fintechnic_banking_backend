@@ -8,7 +8,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 @Service
@@ -19,11 +18,10 @@ public class UserService {
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
     private static final long LOCK_DURATION_MINUTES = 30;
-    private static final String BANK_CODE = "840";
 
-    public UserService(UserRepository userRepository, 
-                      PasswordEncoder passwordEncoder, 
-                      JwtUtil jwtUtil) {
+    public UserService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
@@ -31,17 +29,17 @@ public class UserService {
 
     public User findByUsername(String username) {
         User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-    
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         try {
             user.setEmail(CryptoUtil.decrypt(user.getEmail())); // Giải mã email trước khi trả về
         } catch (Exception e) {
             throw new RuntimeException("Decryption error: " + e.getMessage());
         }
-    
+
         return user;
     }
-    
+
 
     public User registerUser(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
@@ -61,7 +59,6 @@ public class UserService {
         }
 
         user.setRole(userRepository.count() == 0 ? "ADMIN" : "USER");
-        user.setAccountNumber(this.generateAccountNumber());
 
         return userRepository.save(user);
     }
@@ -106,8 +103,7 @@ public class UserService {
         userRepository.save(user);
 
         // Generate JWT token
-        Long userId = user.getId();
-        String token = jwtUtil.generateToken(username, userId);
+        String token = jwtUtil.generateToken(user);
 
         Set<String> activeTokens = user.getActiveTokens();
         if (!activeTokens.isEmpty()) {
@@ -125,7 +121,7 @@ public class UserService {
     public void logoutUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         user.getActiveTokens().clear();
         userRepository.save(user);
     }
@@ -133,11 +129,11 @@ public class UserService {
     public void unlockUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         user.setAccountLocked(false);
         user.setFailedLoginAttempts(0);
         userRepository.save(user);
-    }    
+    }
 
     public void setUserRole(Long userId, String role) {
         User user = userRepository.findById(userId)
@@ -148,19 +144,5 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
-    }
-
-    public String generateUniqueAccountNumber(User user) {
-        String accountNumber;
-        do {
-            accountNumber = generateAccountNumber();
-        } while (userRepository.existsByAccountNumber(user.getAccountNumber())); // Ensure uniqueness
-        return accountNumber;
-    }
-
-    private String generateAccountNumber() {
-        Random random = new Random();
-        long uniqueNumber = 100000000L + random.nextInt(900000000); // Generates 9-digit unique number
-        return BANK_CODE + uniqueNumber; // Add bank identifier
     }
 }

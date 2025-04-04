@@ -6,11 +6,8 @@ import com.fintechnic.backend.repository.ExpenseTrackingRepository;
 import com.fintechnic.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import javax.naming.TimeLimitExceededException;
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ExpenseTrackingService {
