@@ -3,6 +3,7 @@ package com.fintechnic.backend.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,10 +15,10 @@ public class Transaction {
     private Long id;
 
     @Column
-    private String transactionType;
+    private TransactionType transactionType;
 
     @Column
-    private Double amount;
+    private BigDecimal amount;
 
     @Column
     private String transactionDescription;
