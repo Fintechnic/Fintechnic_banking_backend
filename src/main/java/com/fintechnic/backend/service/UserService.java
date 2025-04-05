@@ -1,6 +1,7 @@
 package com.fintechnic.backend.service;
 
 import com.fintechnic.backend.model.User;
+import com.fintechnic.backend.dto.UserDTO;
 import com.fintechnic.backend.repository.UserRepository;
 import com.fintechnic.backend.util.CryptoUtil;
 import com.fintechnic.backend.util.JwtUtil;
@@ -145,4 +146,54 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
-}
+
+    //Ân thêm
+    //Tìm user theo id
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    //Update user
+    public User updateUser(Long id, User updatedUser) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+    
+        user.setUsername(updatedUser.getUsername());
+        if (!updatedUser.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+        }
+        try {
+            user.setEmail(CryptoUtil.encrypt(updatedUser.getEmail()));
+        } catch (Exception e) {
+            throw new RuntimeException("Encryption error: " + e.getMessage());
+        }
+    
+        return userRepository.save(user);
+    }
+
+    //Delete user
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    //Get all user
+    public List<UserDTO> getAllUserDTOs() {
+        return userRepository.findAll().stream().map(user -> {
+            UserDTO dto = new UserDTO();
+            dto.setId(user.getId());
+            dto.setUsername(user.getUsername());
+            try {
+                dto.setEmail(CryptoUtil.decrypt(user.getEmail()));
+            } catch (Exception e) {
+                dto.setEmail("error@decrypting.com");
+            }
+            
+            dto.setRole(user.getRole());
+            dto.setAccountLocked(user.getAccountLocked());
+            return dto;
+        }).toList();
+    }
+    
+    
+}   
