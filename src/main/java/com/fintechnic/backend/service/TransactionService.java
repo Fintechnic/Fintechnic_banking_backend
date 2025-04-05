@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -24,18 +25,14 @@ public class TransactionService {
 
     // Tạo giao dịch
     @Transactional
-    public Transaction createTransaction(Long userId, Double amount, String type, String description) {
+    public Transaction createTransaction(Long userId, BigDecimal amount, String type, String description) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (amount <= 0) {
-            throw new RuntimeException("Amount must be greater than zero");
-        }
 
         Transaction transaction = new Transaction();
         transaction.setUser(user);
         transaction.setAmount(amount);
-        transaction.setType(Enum.valueOf(TransactionType.class, type.toUpperCase())); // Chuyển String thành Enum
+        transaction.setTransactionType(Enum.valueOf(TransactionType.class, type.toUpperCase())); // Chuyển String thành Enum
         transaction.setStatus(TransactionStatus.PENDING); // Mặc định là Pending
         transaction.setDescription(description);
 

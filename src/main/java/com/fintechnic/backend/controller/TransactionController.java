@@ -37,7 +37,7 @@ public class TransactionController {
 
             TransactionDTO transactionDTO = new TransactionDTO(
                 transaction.getTransactionId(),
-                transaction.getType().toString(),
+                transaction.getTransactionType().toString(),
                 transaction.getStatus().toString(),
                 transaction.getAmount(),
                 transaction.getDescription(),
@@ -46,7 +46,7 @@ public class TransactionController {
                 transaction.getUser().getId()
             );
 
-            return ResponseEntity.ok(transactionDTO); 
+            return ResponseEntity.ok(transactionDTO);
         } 
         catch (Exception e) {
             return ResponseEntity.badRequest().body(null);

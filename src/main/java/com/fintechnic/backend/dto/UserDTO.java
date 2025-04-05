@@ -1,5 +1,8 @@
 package com.fintechnic.backend.dto;
 
+import lombok.Getter;
+
+@Getter
 public class UserDTO {
     private Long id;
     private String username;
@@ -9,6 +12,4 @@ public class UserDTO {
         this.username = username;
     }
 
-    public Long getId() { return id; }
-    public String getUsername() { return username; }
 }
