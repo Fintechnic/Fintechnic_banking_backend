@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "transactions")
+@Table(name = "transaction")
 @Data
 public class Transaction {
     @Id
@@ -16,11 +16,6 @@ public class Transaction {
     @ManyToOne
     @JoinColumn(name = "user_id") // tạo ra một biến user_id trong Transaction có reference tới id của class User
     private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "bank_account_id", nullable = false)
-    private BankAccount bankAccount;
-
 
 
     //Field Tpe
