@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -180,19 +181,21 @@ public class UserService {
     //Get all user
     public List<UserDTO> getAllUserDTOs() {
         return userRepository.findAll().stream().map(user -> {
-            UserDTO dto = new UserDTO();
-            dto.setId(user.getId());
-            dto.setUsername(user.getUsername());
+            String decryptedEmail;
             try {
-                dto.setEmail(CryptoUtil.decrypt(user.getEmail()));
+                decryptedEmail = CryptoUtil.decrypt(user.getEmail());
             } catch (Exception e) {
-                dto.setEmail("error@decrypting.com");
+                decryptedEmail = "Decryption failed";
             }
-            
-            dto.setRole(user.getRole());
-            dto.setAccountLocked(user.getAccountLocked());
-            return dto;
-        }).toList();
+
+            return new UserDTO(
+                    user.getId(),
+                    user.getUsername(),
+                    decryptedEmail,
+                    user.getRole(),
+                    user.getAccountLocked()
+            );
+        }).collect(Collectors.toList());
     }
     
     
