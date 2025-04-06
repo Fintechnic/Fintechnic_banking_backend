@@ -156,23 +156,51 @@ public class UserService {
     }
 
     //Update user
-    public User updateUser(Long id, User updatedUser) {
+    public UserDTO updateUser(Long id, UserDTO dto) {
+        // Tìm user theo id
         User user = userRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("User not found"));
     
-        user.setUsername(updatedUser.getUsername());
-        if (!updatedUser.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
-        }
-        try {
-            user.setEmail(CryptoUtil.encrypt(updatedUser.getEmail()));
-        } catch (Exception e) {
-            throw new RuntimeException("Encryption error: " + e.getMessage());
+        // Nếu có email mới thì mã hóa và set vào user
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+            try {
+                user.setEmail(CryptoUtil.encrypt(dto.getEmail()));
+            } catch (Exception e) {
+                throw new RuntimeException("Encryption error: " + e.getMessage());
+            }
         }
     
-        return userRepository.save(user);
+        // Cập nhật role nếu có
+        if (dto.getRole() != null) {
+            user.setRole(dto.getRole());
+        }
+    
+        // Cập nhật accountLocked nếu có
+        if (dto.getAccountLocked() != null) {
+            user.setAccountLocked(dto.getAccountLocked());
+        }
+    
+        // Lưu lại user đã cập nhật
+        User saved = userRepository.save(user);
+    
+        // Trả về UserDTO đã cập nhật
+        String decryptedEmail;
+        try {
+            decryptedEmail = CryptoUtil.decrypt(saved.getEmail());
+        } catch (Exception e) {
+            decryptedEmail = "Error decrypting email";
+        }
+    
+        return new UserDTO(
+            saved.getId(),
+            saved.getUsername(),
+            decryptedEmail,
+            saved.getRole(),
+            saved.getAccountLocked()
+        );
     }
-
+    
+    
     //Delete user
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
