@@ -20,6 +20,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // 400 Bad Request
         response.setContentType("application/json");
         PrintWriter writer = response.getWriter();
-        writer.println("{\"message\": \"USERS do not have permission to access this endpoint..\"}");
+        writer.println("{\"message\": \"USERS do not have permission to access this endpoint!..\"}");
     }
 }
