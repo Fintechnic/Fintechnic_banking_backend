@@ -19,7 +19,6 @@ public class UserService {
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
     private static final long LOCK_DURATION_MINUTES = 30;
-    private static final String BANK_CODE = "840";
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
@@ -52,6 +51,10 @@ public class UserService {
             throw new RuntimeException("Email already exists");
         }
 
+        if (userRepository.existsByPhoneNumber(user.getPhoneNumber())) {
+            throw new RuntimeException("Phone number already exists");
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         try {
@@ -61,7 +64,6 @@ public class UserService {
         }
 
         user.setRole(userRepository.count() == 0 ? "ADMIN" : "USER");
-        user.setAccountNumber(generateUniqueAccountNumber(user));
 
         return userRepository.save(user);
     }
@@ -147,19 +149,5 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
-    }
-
-    public String generateUniqueAccountNumber(User user) {
-        String accountNumber;
-        do {
-            accountNumber = generateAccountNumber();
-        } while (userRepository.existsByAccountNumber(user.getAccountNumber()));
-        return accountNumber;
-    }
-
-    public String generateAccountNumber() {
-        Random random = new Random();
-        long uniqueNumber = 100000000L + random.nextInt(900000000);
-        return BANK_CODE + uniqueNumber;
     }
 }

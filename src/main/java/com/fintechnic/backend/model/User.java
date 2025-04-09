@@ -2,7 +2,7 @@ package com.fintechnic.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Builder;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -24,21 +24,21 @@ public class User {
 
     @Column(nullable = false)
     private String password;
-    
+
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column
-    private String accountNumber; // số tài khoản
+    @Pattern(regexp = "^0[0-9]{9,10}$", message = "Invalid phone number")
+    @Column(nullable = false, unique = true)
+    private String phoneNumber; // số điện thoại
 
-    @Column
-    private BigDecimal balance = BigDecimal.valueOf(0); // số dư
+    @Column(nullable = false, precision = 15, scale = 3)
+    private BigDecimal balance = BigDecimal.ZERO; // số dư
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column
     private String role = "USER";
-
 
     @Column(nullable = false)
     private int failedLoginAttempts = 0;
@@ -51,8 +51,4 @@ public class User {
 
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> activeTokens = new HashSet<>();
-
-    @JsonIgnore // ngăn việc json bị đệ quy
-    @OneToMany(mappedBy = "user")
-    private List<Transaction> transactions;
 }
