@@ -1,15 +1,19 @@
 package com.fintechnic.backend.dto;
 
-import lombok.Getter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
-@Getter
+import java.math.BigDecimal;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDTO {
-    private Long id;
-    private String username;
-
-    public UserDTO(Long id, String username) {
-        this.id = id;
-        this.username = username;
-    }
-
+    Long id;
+    String username;
+    String email;
+    String phoneNumber;
+    BigDecimal balance;
 }

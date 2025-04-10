@@ -2,45 +2,25 @@ package com.fintechnic.backend.service;
 
 import com.fintechnic.backend.model.Transaction;
 import com.fintechnic.backend.model.TransactionStatus;
-import com.fintechnic.backend.model.TransactionType;
 import com.fintechnic.backend.model.User;
 import com.fintechnic.backend.repository.TransactionRepository;
 import com.fintechnic.backend.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
-import java.math.BigDecimal;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
 
-    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository) {
-        this.transactionRepository = transactionRepository;
-        this.userRepository = userRepository;
-    }
-
-    // Tạo giao dịch
-    @Transactional
-    public Transaction createTransaction(Long userId, BigDecimal amount, String type, String description) {
+    public List<Transaction> getTransactions(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Transaction transaction = new Transaction();
-        transaction.setUser(user);
-        transaction.setAmount(amount);
-        transaction.setTransactionType(Enum.valueOf(TransactionType.class, type.toUpperCase())); // Chuyển String thành Enum
-        transaction.setStatus(TransactionStatus.PENDING); // Mặc định là Pending
-        transaction.setDescription(description);
-
-        return transactionRepository.save(transaction);
-    }
-
-    // Lấy tất cả giao dịch của một user
-    public List<Transaction> getUserTransactions(Long userId) {
         return transactionRepository.findByUserId(userId);
     }
 
@@ -50,7 +30,7 @@ public class TransactionService {
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new RuntimeException("Transaction not found"));
 
-        transaction.setStatus(Enum.valueOf(TransactionStatus.class, status.toUpperCase()));
+        transaction.setTransactionStatus(Enum.valueOf(TransactionStatus.class, status.toUpperCase()));
 
         return transactionRepository.save(transaction);
     }

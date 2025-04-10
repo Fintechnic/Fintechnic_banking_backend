@@ -1,60 +1,39 @@
 package com.fintechnic.backend.controller;
 
-import java.util.HashMap;
+import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.fintechnic.backend.util.JwtUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.fintechnic.backend.service.TransactionService;
 
-import jakarta.validation.Valid;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import com.fintechnic.backend.dto.TransactionDTO;
-import com.fintechnic.backend.dto.UserDTO;
 import com.fintechnic.backend.model.Transaction;
 
 
-
 @RestController
-@RequestMapping("/api/transactions")
-@Validated
+@RequiredArgsConstructor
+@RequestMapping("/api/transaction")
 public class TransactionController {
-    @Autowired 
     private TransactionService transactionService;
+    private JwtUtil jwtUtil;
 
-    @PostMapping("/create")
-    public ResponseEntity<TransactionDTO> createTransaction(@RequestBody @Valid TransactionDTO request) {    
-        
-        try {
-            Transaction transaction = transactionService.createTransaction(
-                request.getUserId(), request.getAmount(), request.getType(), request.getDescription()
-            );
+    // lấy danh sách giao dịch
+    @RequestMapping
+    public ResponseEntity<List<Transaction>> getTransactions(@RequestHeader("Authorization") String authHeader) {
+        try{
+            String token = authHeader.substring(7);
+            Long userId = jwtUtil.extractUserId(token);
+            List<Transaction> transaction = transactionService.getTransactions(userId);
 
-            TransactionDTO transactionDTO = new TransactionDTO(
-                transaction.getTransactionId(),
-                transaction.getTransactionType().toString(),
-                transaction.getStatus().toString(),
-                transaction.getAmount(),
-                transaction.getDescription(),
-                transaction.getCreatedAt(),
-                new UserDTO(transaction.getUser().getId(), transaction.getUser().getUsername()),
-                transaction.getUser().getId()
-            );
-
-            return ResponseEntity.ok(transactionDTO);
-        } 
-        catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-            }
+            return ResponseEntity.ok().body(transaction);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
-
+    }
 }
-    
+
 
 
 

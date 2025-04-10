@@ -7,42 +7,49 @@ import java.time.LocalDateTime;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "transaction")
+@Table(name = "transactions")
 @Data
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long TransactionId;
+    private Long id;
 
+    // mã giao dịch
+    @Column
+    private String transactionCode;
+
+    // người thực hiện
     @ManyToOne
-    @JoinColumn(name = "user_id") // tạo ra một biến user_id trong Transaction có reference tới id của class User
+    @JoinColumn(name = "user_id")
     private User user;
 
-    //Field Tpe
+    // loại giao dịch
     @Enumerated(EnumType.STRING)
-    @Column
+    @Column(nullable = false)
     private TransactionType transactionType;
 
-    //Field Status
+    // Trạng thái giao dịch
     @Enumerated(EnumType.STRING)
-    @Column()
-    private TransactionStatus status;
+    @Column(nullable = false)
+    private TransactionStatus transactionStatus;
 
-    //Field Amnout
-    @Column
+    // số tiền
+    @Column(nullable = false)
     private BigDecimal amount;
 
-    //Field Description
+    // phần mô tả giao dịch
     @Column
     private String description;
 
+    @Column
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @PrePersist  // Gán giá trị mặc định trước khi lưu vào DB
-    protected void onCreate() {
-        
-        if (this.status == null) {
-            this.status = TransactionStatus.PENDING; // Mặc định là PENDING
-        }
-    }
+    // đối với giao dịch chuyển khoảng
+    @ManyToOne
+    @JoinColumn(name = "target_id", nullable = false)
+    private User targetUser;
+
+    // đối với thanh toán hóa đơn
+    @Column
+    private String billCode;
 }
