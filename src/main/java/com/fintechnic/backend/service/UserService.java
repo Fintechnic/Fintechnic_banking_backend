@@ -1,14 +1,16 @@
 package com.fintechnic.backend.service;
 
 import com.fintechnic.backend.model.User;
+import com.fintechnic.backend.model.WalletType;
 import com.fintechnic.backend.repository.UserRepository;
 import com.fintechnic.backend.util.CryptoUtil;
 import com.fintechnic.backend.util.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 @Service
@@ -16,16 +18,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final WalletService walletService;
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
     private static final long LOCK_DURATION_MINUTES = 30;
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
-                       JwtUtil jwtUtil) {
+                       JwtUtil jwtUtil, WalletService walletService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.walletService = walletService;
     }
 
     public User findByUsername(String username) {
@@ -41,7 +45,7 @@ public class UserService {
         return user;
     }
 
-
+    @Transactional
     public User registerUser(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("Username already exists");
@@ -65,7 +69,11 @@ public class UserService {
 
         user.setRole(userRepository.count() == 0 ? "ADMIN" : "USER");
 
-        return userRepository.save(user);
+        User registeredUser = userRepository.save(user);
+
+        walletService.createWallet(user, WalletType.MAIN); // tạo thêm ví cùng với tài khoản
+
+        return registeredUser;
     }
 
     public String loginUser(String username, String password) {
