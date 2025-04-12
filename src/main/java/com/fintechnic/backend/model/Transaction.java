@@ -18,11 +18,6 @@ public class Transaction {
     @Column
     private String transactionCode;
 
-    // người thực hiện
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
     // loại giao dịch
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -44,12 +39,17 @@ public class Transaction {
     @Column
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // đối với giao dịch chuyển khoảng
-    @ManyToOne
-    @JoinColumn(name = "target_id", nullable = false)
-    private User targetUser;
-
     // đối với thanh toán hóa đơn
     @Column
     private String billCode;
+
+    // ví thao tác
+    @ManyToOne
+    @JoinColumn(name = "from_wallet_id", nullable = false)
+    private Wallet fromWallet;
+
+    // ví đích đến
+    @ManyToOne
+    @JoinColumn(name = "to_wallet_id", nullable = false)
+    private Wallet toWallet;
 }
