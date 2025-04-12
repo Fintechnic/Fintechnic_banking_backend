@@ -7,6 +7,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "users")
