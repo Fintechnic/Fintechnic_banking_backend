@@ -34,6 +34,9 @@ public class User {
     @Column
     private String role = "USER";
 
+    @Column(nullable = false, precision = 15, scale = 3)
+    private BigDecimal balance = BigDecimal.ZERO; // số dư
+
     @Column(nullable = false)
     private int failedLoginAttempts = 0;
 
