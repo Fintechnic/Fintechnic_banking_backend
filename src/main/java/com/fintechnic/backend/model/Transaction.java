@@ -1,21 +1,30 @@
 package com.fintechnic.backend.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Entity
 @Table(name = "transactions")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     // mã giao dịch
-    @Column
+    @Column(unique = true, nullable = false)
     private String transactionCode;
 
     // loại giao dịch
@@ -36,12 +45,13 @@ public class Transaction {
     @Column
     private String description;
 
-    @Column
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    // đối với thanh toán hóa đơn
+    @UpdateTimestamp
     @Column
-    private String billCode;
+    private LocalDateTime updatedAt;
 
     // ví thao tác
     @ManyToOne
@@ -52,4 +62,11 @@ public class Transaction {
     @ManyToOne
     @JoinColumn(name = "to_wallet_id", nullable = false)
     private Wallet toWallet;
+
+    @PrePersist
+    private void generateTransactionCode() {
+        if (transactionCode == null) {
+            transactionCode = "TX-" + UUID.randomUUID().toString();
+        }
+    }
 }

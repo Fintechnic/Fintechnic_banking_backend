@@ -5,12 +5,11 @@ import com.fintechnic.backend.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface UserMapper {
 
     @Mapping(source = "username", target = "username")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "phoneNumber", target = "phoneNumber")
-    @Mapping(source = "balance", target = "balance")
     UserDTO userToUserDTO(User user);
 }

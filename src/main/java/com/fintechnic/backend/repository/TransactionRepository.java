@@ -8,6 +8,7 @@ import com.fintechnic.backend.model.Transaction;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    Page<Transaction> findByFromWalletUserId(Long userId, Pageable pageable);
+    Page<Transaction> findByFromWalletUserIdOrToWalletUserId(Long fromUserId, Long toUserId, Pageable pageable);
+    boolean existsByToWalletUserPhoneNumber(String phoneNumber);
     boolean existsByTransactionCode(String transactionCode);
 }

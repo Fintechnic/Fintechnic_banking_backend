@@ -10,9 +10,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransactionDTO {
-    private String targetUser;
+    private String counterparty; // bên còn lại (A đối với B, B đối với A)
     private BigDecimal amount;
+    private String description;
     private String status;
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
     private String type;
 }

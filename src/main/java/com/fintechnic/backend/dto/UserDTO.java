@@ -9,11 +9,9 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDTO {
-    Long id;
-    String username;
-    String email;
-    String phoneNumber;
-    BigDecimal balance;
+    private Long id;
+    private String username;
+    private String email;
+    private String phoneNumber;
 }
