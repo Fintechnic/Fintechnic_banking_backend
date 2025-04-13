@@ -3,6 +3,7 @@ package com.fintechnic.backend.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -29,7 +30,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String phoneNumber; // số điện thoại
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @Column
     private String role = "USER";
