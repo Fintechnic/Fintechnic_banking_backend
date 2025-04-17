@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/qrcode")
+@RequestMapping("/api/qrcode")
 public class QRCodeScannerController {
     private final QRCodeScannerService qrCodeScannerService;
 

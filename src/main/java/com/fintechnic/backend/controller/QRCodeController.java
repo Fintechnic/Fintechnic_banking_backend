@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/qrcode")
+@RequestMapping("/api/qrcode")
 public class QRCodeController {
 
     private final QRCodeService qrCodeService;
