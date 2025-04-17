@@ -15,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/transaction")
+@RequestMapping("/api/admin/transaction")
 public class TransactionController {
     private final TransactionService transactionService;
     private final JwtUtil jwtUtil;
