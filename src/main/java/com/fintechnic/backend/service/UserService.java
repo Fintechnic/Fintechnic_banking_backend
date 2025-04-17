@@ -1,11 +1,14 @@
 package com.fintechnic.backend.service;
 
 import com.fintechnic.backend.model.User;
+import com.fintechnic.backend.model.WalletType;
 import com.fintechnic.backend.repository.UserRepository;
 import com.fintechnic.backend.util.CryptoUtil;
 import com.fintechnic.backend.util.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -15,32 +18,34 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final WalletService walletService;
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
     private static final long LOCK_DURATION_MINUTES = 30;
 
-    public UserService(UserRepository userRepository, 
-                      PasswordEncoder passwordEncoder, 
-                      JwtUtil jwtUtil) {
+    public UserService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       JwtUtil jwtUtil, WalletService walletService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.walletService = walletService;
     }
 
     public User findByUsername(String username) {
         User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-    
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         try {
             user.setEmail(CryptoUtil.decrypt(user.getEmail())); // Giải mã email trước khi trả về
         } catch (Exception e) {
             throw new RuntimeException("Decryption error: " + e.getMessage());
         }
-    
+
         return user;
     }
-    
 
+    @Transactional
     public User registerUser(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("Username already exists");
@@ -48,6 +53,10 @@ public class UserService {
 
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new RuntimeException("Email already exists");
+        }
+
+        if (userRepository.existsByPhoneNumber(user.getPhoneNumber())) {
+            throw new RuntimeException("Phone number already exists");
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -60,7 +69,11 @@ public class UserService {
 
         user.setRole(userRepository.count() == 0 ? "ADMIN" : "USER");
 
-        return userRepository.save(user);
+        User registeredUser = userRepository.save(user);
+
+        walletService.createWallet(user, WalletType.MAIN); // tạo thêm ví cùng với tài khoản
+
+        return registeredUser;
     }
 
     public String loginUser(String username, String password) {
@@ -103,7 +116,7 @@ public class UserService {
         userRepository.save(user);
 
         // Generate JWT token
-        String token = jwtUtil.generateToken(username);
+        String token = jwtUtil.generateToken(user);
 
         Set<String> activeTokens = user.getActiveTokens();
         if (!activeTokens.isEmpty()) {
@@ -121,7 +134,7 @@ public class UserService {
     public void logoutUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         user.getActiveTokens().clear();
         userRepository.save(user);
     }
@@ -129,11 +142,11 @@ public class UserService {
     public void unlockUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         user.setAccountLocked(false);
         user.setFailedLoginAttempts(0);
         userRepository.save(user);
-    }    
+    }
 
     public void setUserRole(Long userId, String role) {
         User user = userRepository.findById(userId)
