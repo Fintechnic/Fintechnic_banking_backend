@@ -47,6 +47,11 @@ public class JwtUtil {
         return extractClaim(token, claims -> claims.get("id", Long.class));
     }
 
+    public Long extractUserIdFromToken(String authHeader) {
+        String token = authHeader.substring(7);
+        return extractUserId(token);
+    }
+
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }

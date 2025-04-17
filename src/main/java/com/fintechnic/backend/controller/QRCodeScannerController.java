@@ -1,81 +1,52 @@
 package com.fintechnic.backend.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fintechnic.backend.model.User;
-import com.fintechnic.backend.service.QRCodeService;
-import com.fintechnic.backend.util.CryptoUtil;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.fintechnic.backend.dto.QRCodeRequestDTO;
+import com.fintechnic.backend.service.QRCodeScannerService;
 import io.jsonwebtoken.security.InvalidKeyException;
-import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.SecretKey;
+import javax.security.auth.login.AccountNotFoundException;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @RestController
 @RequestMapping("/qrcode")
 public class QRCodeScannerController {
+    private final QRCodeScannerService qrCodeScannerService;
 
-    private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final QRCodeService qrCodeService;
-
-    public QRCodeScannerController(QRCodeService qrCodeService) {
-        this.qrCodeService = qrCodeService;
+    public QRCodeScannerController(QRCodeScannerService qrCodeScannerService) {
+        this.qrCodeScannerService = qrCodeScannerService;
     }
 
-    @GetMapping("/scanner")
-    public ResponseEntity<?> scanQRCode(@RequestParam String token) {
+    @PostMapping("/scanner")
+    public ResponseEntity<?> scanQRCode(@RequestBody QRCodeRequestDTO request,
+                                        @RequestHeader("Authorization") String authHeader) {
         try {
-            String transactionInformation = CryptoUtil.decrypt(token);
-            log.info("Decrypted data: {}", transactionInformation);
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> json = objectMapper.readValue(transactionInformation, Map.class);
-
-            Object userIdObj = json.get("userId");
-            long userId;
-            if (userIdObj instanceof Integer) {
-                userId = ((Integer) userIdObj).longValue();
-            } else if (userIdObj instanceof Long) {
-                userId = (Long) userIdObj;
-            } else {
-                return ResponseEntity.badRequest()
-                        .body("Invalid userId format in token.");
-            }
-
-            Optional<User> user = qrCodeService.getUserById(userId);
-            if (user.isEmpty()) {
-                return ResponseEntity.badRequest()
-                        .body("User not found.");
-            }
-
-            return ResponseEntity.ok()
-                    .body("Scan successful! " + json);
+            System.out.println(request.getEncryptedData());
+            Map<String, Object> response = qrCodeScannerService.processQRCodeData(
+                    request.getEncryptedData(),authHeader
+            );
+            return ResponseEntity.ok().body(response);
         } catch (JsonProcessingException e) {
-            return ResponseEntity.badRequest()
-                    .body("Invalid token format.");
-
+            log.error("Invalid token format: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("Invalid token format.");
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body("Invalid userId format in token.");
-
+            log.error("Validation error: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
-            return ResponseEntity.badRequest()
-                    .body("Decryption failed. Invalid token.");
-
+            log.error("Decryption failed: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("Decryption failed. Invalid token.");
+        } catch (AccountNotFoundException e) {
+            log.error("User not found: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("User not found.");
         } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body("Scan unsuccessful due to an internal error.");
+            log.error("Internal server error: {}", e.getMessage());
+            return ResponseEntity.internalServerError().body("Scan unsuccessful due to an internal error.");
         }
     }
 }
