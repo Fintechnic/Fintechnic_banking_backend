@@ -7,6 +7,8 @@ import com.fintechnic.backend.model.WalletType;
 import com.fintechnic.backend.repository.WalletRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class WalletService {
     private final WalletRepository walletRepository;
@@ -32,5 +34,10 @@ public class WalletService {
         wallet.setWalletType(walletType);
 
         return walletRepository.save(wallet);
+    }
+
+    public BigDecimal getBalance(Long userId) {
+        Wallet wallet = walletRepository.findByUserId(userId);
+        return wallet.getBalance();
     }
 }
