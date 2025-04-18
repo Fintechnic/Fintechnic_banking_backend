@@ -15,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/admin/transaction")
+@RequestMapping("/api/transaction")
 public class TransactionController {
     private final TransactionService transactionService;
     private final JwtUtil jwtUtil;
@@ -26,7 +26,7 @@ public class TransactionController {
     }
 
     // lấy danh sách giao dịch
-    @GetMapping("/history")
+    @GetMapping("/admin/history")
     public ResponseEntity<Page<TransactionDTO>> getTransactions(
             @RequestHeader(value = "Authorization", required = false) String authHeader,
             @RequestParam(defaultValue = "0") int page,

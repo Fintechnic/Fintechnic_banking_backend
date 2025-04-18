@@ -99,4 +99,38 @@ public class TransactionService {
         return transactionMapper.transactionToTransactionDTO(transaction, fromUserId);
 
     }
+
+    //Thêm tiền vào tài khoản agent
+    public TransactionDTO addMoneyToAgent(Long agentUserId, BigDecimal amount, String description){
+        Wallet agentWallet = walletRepository.findByUserId(agentUserId);
+        if (agentWallet == null){
+            throw new RuntimeException("Agent wallet is not found");
+        }
+
+        if (agentWallet.getWalletStatus() == WalletStatus.CLOSED ||
+            agentWallet.getWalletStatus() == WalletStatus.INACTIVE ||
+            agentWallet.getWalletStatus() == WalletStatus.SUSPENDED) {
+            throw new RuntimeException("Agent account cannot receive money");
+        }
+
+        //Thêm tiền vào ví agent
+        agentWallet.setBalance(agentWallet.getBalance().add(amount));
+        walletRepository.save(agentWallet);
+
+
+        // Lưu vào lịch sử giao dịch
+        Transaction transaction = Transaction.builder()
+                .fromWallet(agentWallet) // Tạm coi ví của agent là ví nguồn
+                .toWallet(agentWallet)   // Ví người nhận cũng là ví agent (vì chỉ thêm tiền vào ví agent)
+                .amount(amount)
+                .description(description)
+                .transactionStatus(TransactionStatus.SUCCESS)
+                .transactionType(TransactionType.DEPOSIT) // Loại giao dịch là nạp tiền
+                .build();
+
+        transactionRepository.save(transaction);
+
+
+        return transactionMapper.transactionToTransactionDTO(null, agentUserId);
+    }
 }
