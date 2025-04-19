@@ -10,8 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.fintechnic.backend.service.TransactionService;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
@@ -25,15 +23,14 @@ public class TopUpController {
     }
 
     @PostMapping("/topup")
-    public ResponseEntity<TransactionDTO> addMoneyToAgent(
-        @RequestBody TopUpDTO request) {
+    public ResponseEntity<TopUpDTO> addMoneyToAgent(
+        @RequestBody TopUpDTO requestDto) {
 
             try { 
-                TransactionDTO transactionDTO = transactionService.addMoneyToAgent(request.getAgentUserId(), request.getAmount(), request.getDescription());
-                return new ResponseEntity<>(transactionDTO, HttpStatus.CREATED);
+                TopUpDTO responseDto = transactionService.addMoneyToAgent(requestDto);
+                return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
             } catch (RuntimeException e) {
-                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
             }
         }
 }

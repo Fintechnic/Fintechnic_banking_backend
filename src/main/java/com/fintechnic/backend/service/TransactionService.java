@@ -1,5 +1,6 @@
 package com.fintechnic.backend.service;
 
+import com.fintechnic.backend.dto.TopUpDTO;
 import com.fintechnic.backend.dto.TransactionDTO;
 import com.fintechnic.backend.mapper.TransactionMapper;
 import com.fintechnic.backend.model.*;
@@ -101,8 +102,8 @@ public class TransactionService {
     }
 
     //Thêm tiền vào tài khoản agent
-    public TransactionDTO addMoneyToAgent(Long agentUserId, BigDecimal amount, String description){
-        Wallet agentWallet = walletRepository.findByUserId(agentUserId);
+    public TopUpDTO addMoneyToAgent(TopUpDTO requesDto){
+        Wallet agentWallet = walletRepository.findByUserId(requesDto.getAgentUserId());
         if (agentWallet == null){
             throw new RuntimeException("Agent wallet is not found");
         }
@@ -114,23 +115,35 @@ public class TransactionService {
         }
 
         //Thêm tiền vào ví agent
-        agentWallet.setBalance(agentWallet.getBalance().add(amount));
-        walletRepository.save(agentWallet);
+        BigDecimal newBalance = agentWallet.getBalance().add(requesDto.getAmount());
+    agentWallet.setBalance(newBalance);
+    walletRepository.save(agentWallet);
+
 
 
         // Lưu vào lịch sử giao dịch
         Transaction transaction = Transaction.builder()
                 .fromWallet(agentWallet) // Tạm coi ví của agent là ví nguồn
                 .toWallet(agentWallet)   // Ví người nhận cũng là ví agent (vì chỉ thêm tiền vào ví agent)
-                .amount(amount)
-                .description(description)
+                .amount(requesDto.getAmount())
+                .description(requesDto.getDescription())
                 .transactionStatus(TransactionStatus.SUCCESS)
-                .transactionType(TransactionType.DEPOSIT) // Loại giao dịch là nạp tiền
+                .transactionType(TransactionType.TOP_UP) // Loại giao dịch là nạp tiền
                 .build();
 
         transactionRepository.save(transaction);
 
+        
+        return TopUpDTO.builder()
+            .agentUserId(requesDto.getAgentUserId())
+            .agentFullName(requesDto.getAgentFullName())
+            .amount(requesDto.getAmount())
+            .description(requesDto.getDescription())
+            .status("SUCCESS")
+            .transactionId(transaction.getId().toString())
+            .newBalance(newBalance)
+            .createdAt(transaction.getCreatedAt())
+            .build();
 
-        return transactionMapper.transactionToTransactionDTO(null, agentUserId);
     }
 }
