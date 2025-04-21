@@ -25,6 +25,13 @@ public class TransactionDTO {
     private String description;
     private String status;
     private LocalDateTime createdAt = LocalDateTime.now();
+   
+
+    //Filter
+    private LocalDateTime startTime; // thời gian bắt đầu để lọc
+    private LocalDateTime endTime;   // thời gian kết thúc để lọc
+    private String userId;           // ID của user cần lọc
     private String type;
+
     
 }

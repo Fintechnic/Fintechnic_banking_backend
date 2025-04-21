@@ -1,5 +1,8 @@
 package com.fintechnic.backend.repository;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -13,4 +16,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     Page<Transaction> findByFromWalletUserIdOrToWalletUserId(Long fromUserId, Long toUserId, Pageable pageable);
     boolean existsByToWalletUserPhoneNumber(String phoneNumber);
     boolean existsByTransactionCode(String transactionCode);
+    
 }

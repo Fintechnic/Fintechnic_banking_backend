@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -20,6 +22,7 @@ public class TransactionService {
     private final UserRepository userRepository;
     private final TransactionMapper transactionMapper;
     private final WalletRepository walletRepository;
+    
 
     public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, TransactionMapper transactionMapper, WalletRepository walletRepository) {
         this.transactionRepository = transactionRepository;
@@ -28,11 +31,12 @@ public class TransactionService {
         this.walletRepository = walletRepository;
     }
 
-    // lấy danh sách giao dịch với đầy đủ thông tin
-    public Page<Transaction> getTransactions(int page, int size) {
+    public Page<TransactionDTO> getTransactions(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return transactionRepository.findAll(pageable);
+        return transactionRepository.findAll(pageable)
+                .map(transactionMapper::transactionToTransactionDTO); // dùng method mới
     }
+    
 
     // hiển thị lịch sử giao dịch
     public Page<TransactionDTO> getTransactionsByUserId(Long userId, int page, int size) {
@@ -116,8 +120,8 @@ public class TransactionService {
 
         //Thêm tiền vào ví agent
         BigDecimal newBalance = agentWallet.getBalance().add(requesDto.getAmount());
-    agentWallet.setBalance(newBalance);
-    walletRepository.save(agentWallet);
+        agentWallet.setBalance(newBalance);
+        walletRepository.save(agentWallet);
 
 
 
@@ -134,6 +138,7 @@ public class TransactionService {
         transactionRepository.save(transaction);
 
         
+        
         return TopUpDTO.builder()
             .agentUserId(requesDto.getAgentUserId())
             .agentFullName(requesDto.getAgentFullName())
@@ -146,4 +151,14 @@ public class TransactionService {
             .build();
 
     }
+
+    public Page<TransactionDTO> getAllTransactions(int page, int size) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllTransactions'");
+    }
+
+    //Lọc giao dịch theo user id, ngày
+    
 }
+
+

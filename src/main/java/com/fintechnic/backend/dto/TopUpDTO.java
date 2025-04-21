@@ -21,7 +21,7 @@ public class TopUpDTO {
 
     // Response-only
     private String agentFullName;            // Optional: chỉ dùng để hiển thị trên UI
-    private BigDecimal newBalance;           // Sau khi nạp
+    private BigDecimal newBalance;             
     private String transactionId;            // Mã giao dịch trả về cho UI
 
     // Request + response
