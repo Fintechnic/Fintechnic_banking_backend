@@ -1,5 +1,6 @@
 package com.fintechnic.backend.service;
 
+import com.fintechnic.backend.dto.TopUpDTO;
 import com.fintechnic.backend.dto.TransactionDTO;
 import com.fintechnic.backend.mapper.TransactionMapper;
 import com.fintechnic.backend.model.*;
@@ -12,6 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -27,13 +31,13 @@ public class TransactionService {
         this.walletRepository = walletRepository;
     }
 
-    // lấy danh sách giao dịch với đầy đủ thông tin
+    // lấy danh sách giao dịch với đầy đủ thông tin (cho admin)
     public Page<Transaction> getTransactions(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return transactionRepository.findAll(pageable);
     }
 
-    // hiển thị lịch sử giao dịch
+    // hiển thị lịch sử giao dịch (cho user)
     public Page<TransactionDTO> getTransactionsByUserId(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return transactionRepository.findByFromWalletUserIdOrToWalletUserId(userId, userId, pageable)
@@ -99,4 +103,57 @@ public class TransactionService {
         return transactionMapper.transactionToTransactionDTO(transaction, fromUserId);
 
     }
+
+    //Thêm tiền vào tài khoản agent
+    public TopUpDTO addMoneyToAgent(TopUpDTO requesDto){
+        Wallet agentWallet = walletRepository.findByUserId(requesDto.getAgentUserId());
+        if (agentWallet == null){
+            throw new RuntimeException("Agent wallet is not found");
+        }
+
+        if (agentWallet.getWalletStatus() == WalletStatus.CLOSED ||
+            agentWallet.getWalletStatus() == WalletStatus.INACTIVE ||
+            agentWallet.getWalletStatus() == WalletStatus.SUSPENDED) {
+            throw new RuntimeException("Agent account cannot receive money");
+        }
+
+        //Thêm tiền vào ví agent
+        BigDecimal newBalance = agentWallet.getBalance().add(requesDto.getAmount());
+        agentWallet.setBalance(newBalance);
+        walletRepository.save(agentWallet);
+
+
+
+        // Lưu vào lịch sử giao dịch
+        Transaction transaction = Transaction.builder()
+                .fromWallet(agentWallet) // Tạm coi ví của agent là ví nguồn
+                .toWallet(agentWallet)   // Ví người nhận cũng là ví agent (vì chỉ thêm tiền vào ví agent)
+                .amount(requesDto.getAmount())
+                .description(requesDto.getDescription())
+                .transactionStatus(TransactionStatus.SUCCESS)
+                .transactionType(TransactionType.TOP_UP) // Loại giao dịch là nạp tiền
+                .build();
+
+        transactionRepository.save(transaction);
+
+        
+        
+        return TopUpDTO.builder()
+            .agentUserId(requesDto.getAgentUserId())
+            .agentFullName(requesDto.getAgentFullName())
+            .amount(requesDto.getAmount())
+            .description(requesDto.getDescription())
+            .status("SUCCESS")
+            .transactionId(transaction.getId().toString())
+            .newBalance(newBalance)
+            .createdAt(transaction.getCreatedAt())
+            .build();
+
+    }
+
+    public Page<TransactionDTO> getAllTransactions(int page, int size) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllTransactions'");
+    }
+    
 }
