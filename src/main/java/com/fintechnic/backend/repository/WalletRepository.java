@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface WalletRepository extends JpaRepository<Wallet, Long> {
     Wallet findByUserId(Long userId);
     Wallet findByUserPhoneNumber(String phoneNumber);
+  
     @Query("SELECT SUM(w.balance) FROM Wallet w")
     BigDecimal getTotalSystemBalance();
 

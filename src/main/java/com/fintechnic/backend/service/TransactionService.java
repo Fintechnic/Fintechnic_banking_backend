@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,6 @@ public class TransactionService {
     private final UserRepository userRepository;
     private final TransactionMapper transactionMapper;
     private final WalletRepository walletRepository;
-    
 
     public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, TransactionMapper transactionMapper, WalletRepository walletRepository) {
         this.transactionRepository = transactionRepository;
@@ -31,14 +31,13 @@ public class TransactionService {
         this.walletRepository = walletRepository;
     }
 
-    public Page<TransactionDTO> getTransactions(int page, int size) {
+    // lấy danh sách giao dịch với đầy đủ thông tin (cho admin)
+    public Page<Transaction> getTransactions(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return transactionRepository.findAll(pageable)
-                .map(transactionMapper::transactionToTransactionDTO); // dùng method mới
+        return transactionRepository.findAll(pageable);
     }
-    
 
-    // hiển thị lịch sử giao dịch
+    // hiển thị lịch sử giao dịch (cho user)
     public Page<TransactionDTO> getTransactionsByUserId(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return transactionRepository.findByFromWalletUserIdOrToWalletUserId(userId, userId, pageable)
@@ -156,9 +155,5 @@ public class TransactionService {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getAllTransactions'");
     }
-
-    //Lọc giao dịch theo user id, ngày
     
 }
-
-
