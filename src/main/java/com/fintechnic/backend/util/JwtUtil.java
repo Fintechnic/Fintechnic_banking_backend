@@ -1,5 +1,6 @@
 package com.fintechnic.backend.util;
 
+import com.fintechnic.backend.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -17,15 +18,16 @@ public class JwtUtil {
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long JWT_TOKEN_VALIDITY = 5 * 60 * 60 * 1000; // 5 hours
 
-    public String generateToken(String username) {
+    public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, username);
+        return createToken(claims, user);
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    private String createToken(Map<String, Object> claims, User user) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(subject)
+                .claim("id", user.getId())
+                .setSubject(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY))
                 .signWith(key)
@@ -39,6 +41,15 @@ public class JwtUtil {
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public Long extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("id", Long.class));
+    }
+
+    public Long extractUserIdFromToken(String authHeader) {
+        String token = authHeader.substring(7);
+        return extractUserId(token);
     }
 
     private Date extractExpiration(String token) {

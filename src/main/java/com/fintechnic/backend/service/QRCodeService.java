@@ -1,27 +1,30 @@
 package com.fintechnic.backend.service;
 
-import com.fintechnic.backend.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fintechnic.backend.util.CryptoUtil;
+import com.fintechnic.backend.util.JwtUtil;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
 public class QRCodeService {
-    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
+    private final ObjectMapper objectMapper;
 
-    public QRCodeService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public QRCodeService(JwtUtil jwtUtil, ObjectMapper objectMapper) {
+        this.jwtUtil = jwtUtil;
+        this.objectMapper = objectMapper;
     }
 
     public byte[] generateQRCode(String text, int width, int height) throws WriterException, IOException {
@@ -33,21 +36,22 @@ public class QRCodeService {
         return outputStream.toByteArray();
     }
 
-    public String encodingInformation(Map<String, Object> transactionData,
-                                      Date expirationDate,
-                                      SecretKey secretKey) {
-        return Jwts.builder()
-                .setClaims(transactionData)
-                .setExpiration(expirationDate)
-                .signWith(secretKey)
-                .compact();
-    }
+    public String createQRCodeContents(String authHeader) throws Exception {
+        Long userId = jwtUtil.extractUserIdFromToken(authHeader);
+        LocalDateTime expirationDate = LocalDateTime.now().plusMinutes(5);
 
-    public Claims decryptingInformation(SecretKey secretKey, String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        long expirationTimeStamp = expirationDate
+                .atZone(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli();
+
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("userId", userId);
+        userInfo.put("exp", expirationTimeStamp);
+
+        String jsonString = objectMapper.writeValueAsString(userInfo);
+
+        // mã hóa dữ liệu JSON
+        return CryptoUtil.encrypt(jsonString);
     }
 }

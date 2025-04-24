@@ -1,7 +1,9 @@
 package com.fintechnic.backend.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,15 +21,20 @@ public class User {
 
     @Column(nullable = false)
     private String password;
-    
+
     @Column(nullable = false, unique = true)
     private String email;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Pattern(regexp = "^0[0-9]{9,10}$", message = "Invalid phone number")
+    @Column(nullable = false, unique = true)
+    private String phoneNumber; // số điện thoại
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @Column
     private String role = "USER";
-
 
     @Column(nullable = false)
     private int failedLoginAttempts = 0;
@@ -40,6 +47,4 @@ public class User {
 
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> activeTokens = new HashSet<>();
-
-
 }
