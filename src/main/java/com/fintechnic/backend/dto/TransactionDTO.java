@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class TransactionDTO {
     private String counterparty; // bên còn lại (A đối với B, B đối với A)
     private BigDecimal amount;

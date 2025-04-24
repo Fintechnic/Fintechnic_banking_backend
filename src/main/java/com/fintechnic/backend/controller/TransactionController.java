@@ -3,6 +3,7 @@ package com.fintechnic.backend.controller;
 import com.fintechnic.backend.dto.TransactionDTO;
 import com.fintechnic.backend.dto.TransferRequestDTO;
 import com.fintechnic.backend.util.JwtUtil;
+
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,15 @@ public class TransactionController {
     }
 
     // lấy danh sách giao dịch
+    @GetMapping("/admin/history")
+    public ResponseEntity<Page<TransactionDTO>> getTransactions(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+
+    Page<TransactionDTO> transactions = transactionService.getTransactions(page, size);
+    return ResponseEntity.ok(transactions);
+    }
+    
     @GetMapping("/history")
     public ResponseEntity<Page<TransactionDTO>> getTransactions(
             @RequestHeader(value = "Authorization", required = false) String authHeader,
