@@ -1,8 +1,8 @@
 package com.fintechnic.backend.service;
 
-import com.fintechnic.backend.dto.BillRequestDTO;
-import com.fintechnic.backend.dto.BillResponseDTO;
-import com.fintechnic.backend.dto.TransactionDTO;
+import com.fintechnic.backend.dto.request.BillRequestDTO;
+import com.fintechnic.backend.dto.response.BillResponseDTO;
+import com.fintechnic.backend.dto.response.TransferResponseDTO;
 import com.fintechnic.backend.mapper.BillMapper;
 import com.fintechnic.backend.mapper.TransactionMapper;
 import com.fintechnic.backend.model.*;
@@ -15,8 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
 
 @Service
 public class BillService {
@@ -45,7 +43,7 @@ public class BillService {
 
     // thanh toán bill
     @Transactional
-    public TransactionDTO payBill(Long billId, Long userId) {
+    public TransferResponseDTO payBill(Long billId, Long userId) {
         Bill bill = billRepository.findByIdAndIsPaid(billId, false)
                 .orElseThrow(() -> new IllegalArgumentException("Bill not found or already paid"));
         Wallet wallet = walletRepository.findByUserId(userId)

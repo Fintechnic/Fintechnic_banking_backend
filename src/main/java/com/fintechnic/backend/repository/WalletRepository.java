@@ -1,18 +1,18 @@
 package com.fintechnic.backend.repository;
 
 import com.fintechnic.backend.model.Wallet;
-
-import java.math.BigDecimal;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.util.Optional;
+
 @Repository
 public interface WalletRepository extends JpaRepository<Wallet, Long> {
-    Wallet findByUserId(Long userId);
-    Wallet findByUserPhoneNumber(String phoneNumber);
-  
+    Optional<Wallet> findByUserId(Long userId);
+    Optional<Wallet> findByUserPhoneNumber(String phoneNumber);
+
     @Query("SELECT SUM(w.balance) FROM Wallet w")
     BigDecimal getTotalSystemBalance();
 

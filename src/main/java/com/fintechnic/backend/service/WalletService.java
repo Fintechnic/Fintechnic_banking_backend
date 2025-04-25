@@ -25,21 +25,17 @@ public class WalletService {
         this.walletRepository = walletRepository;
     }
 
-    public Wallet createWallet(User user, WalletType walletType) {
+    public Wallet createWallet(User user) {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
         if (user.getId() == null) {
             throw new IllegalArgumentException("User must be created before creating wallet");
         }
-        if (walletType == null) {
-            throw new IllegalArgumentException("Wallet type cannot be null");
-        }
 
         Wallet wallet = new Wallet();
         wallet.setUser(user);
         wallet.setWalletStatus(WalletStatus.ACTIVE);
-        wallet.setWalletType(walletType);
 
         return walletRepository.save(wallet);
     }
@@ -52,7 +48,8 @@ public class WalletService {
     }
 
     public BigDecimal getBalance(Long userId) {
-        Wallet wallet = walletRepository.findByUserId(userId);
+        Wallet wallet = walletRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Wallet not found"));
         return wallet.getBalance();
     }
 }
