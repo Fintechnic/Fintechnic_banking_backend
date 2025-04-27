@@ -1,9 +1,11 @@
 package com.fintechnic.backend.controller;
 
 import com.fintechnic.backend.dto.TransactionDTO;
+import com.fintechnic.backend.dto.TransactionFilterRequestDTO;
 import com.fintechnic.backend.dto.TransferRequestDTO;
 import com.fintechnic.backend.model.Transaction;
 import com.fintechnic.backend.util.JwtUtil;
+import com.fintechnic.backend.dto.TransactionFilterResponseDTO;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.fintechnic.backend.service.TransactionService;
 import org.springframework.web.server.ResponseStatusException;
+
 
 @Slf4j
 @RestController
@@ -92,6 +95,12 @@ public class TransactionController {
 
         return ResponseEntity.ok().body(response);
     }
+
+    @PostMapping("/admin/filter")
+    public Page<TransactionFilterResponseDTO> filterTransactions(@Valid @RequestBody TransactionFilterRequestDTO request){
+        return transactionService.filterTransactions(request);
+    }
+    
 }
 
 

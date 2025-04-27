@@ -2,19 +2,27 @@ package com.fintechnic.backend.service;
 
 import com.fintechnic.backend.dto.TopUpDTO;
 import com.fintechnic.backend.dto.TransactionDTO;
+import com.fintechnic.backend.dto.TransactionFilterRequestDTO;
+import com.fintechnic.backend.dto.TransactionFilterResponseDTO;
 import com.fintechnic.backend.mapper.TransactionMapper;
 import com.fintechnic.backend.model.*;
 import com.fintechnic.backend.repository.TransactionRepository;
 import com.fintechnic.backend.repository.UserRepository;
 import com.fintechnic.backend.repository.WalletRepository;
+
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import jakarta.persistence.criteria.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -156,4 +164,70 @@ public class TransactionService {
         throw new UnsupportedOperationException("Unimplemented method 'getAllTransactions'");
     }
     
+
+    // Filter giao dịch 
+    public Page<TransactionFilterResponseDTO> filterTransactions(TransactionFilterRequestDTO request) {
+
+        Specification<Transaction> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (request.getTransactionCode() != null) {
+                predicates.add(cb.equal(root.get("transactionCode"), request.getTransactionCode()));
+            }
+            if (request.getTransactionType() != null) {
+                predicates.add(cb.equal(root.get("transactionType"), request.getTransactionType()));
+            }
+            if (request.getStatuses() != null && !request.getStatuses().isEmpty()) {
+                predicates.add(root.get("transactionStatus").in(request.getStatuses()));
+            }
+            if (request.getMinAmount() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("amount"), request.getMinAmount()));
+            }
+            if (request.getMaxAmount() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("amount"), request.getMaxAmount()));
+            }
+            if (request.getKeyword() != null) {
+                predicates.add(cb.like(cb.lower(root.get("description")),
+                        "%" + request.getKeyword().toLowerCase() + "%"));
+            }
+            if (request.getFromDate() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), request.getFromDate()));
+            }
+            if (request.getToDate() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), request.getToDate()));
+            }
+            if (request.getFromWalletId() != null) {
+                predicates.add(cb.equal(root.get("fromWallet").get("id"), request.getFromWalletId()));
+            }
+            if (request.getToWalletId() != null) {
+                predicates.add(cb.equal(root.get("toWallet").get("id"), request.getToWalletId()));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Sort.Direction direction = "ASC".equalsIgnoreCase(request.getSortDirection())
+                ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, request.getSortBy());
+        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize(), sort);
+
+        Page<Transaction> transactionPage = transactionRepository.findAll(spec, pageRequest);
+
+        // Convert Page<Transaction> -> Page<TransactionResponse>
+        return transactionPage.map(this::convertToResponse);
+    }
+
+    private TransactionFilterResponseDTO convertToResponse(Transaction transaction) {
+        TransactionFilterResponseDTO response = new TransactionFilterResponseDTO();
+        response.setTransactionCode(transaction.getTransactionCode());
+        response.setTransactionType(transaction.getTransactionType());
+        response.setTransactionStatus(transaction.getTransactionStatus());
+        response.setAmount(transaction.getAmount());
+        response.setDescription(transaction.getDescription());
+        response.setCreatedAt(transaction.getCreatedAt());
+        response.setFromWalletId(transaction.getFromWallet() != null ? transaction.getFromWallet().getId() : null);
+        response.setToWalletId(transaction.getToWallet() != null ? transaction.getToWallet().getId() : null);
+        return response;
+    }
+
 }
