@@ -28,11 +28,6 @@ public class Wallet {
     @Column(nullable = false)
     private WalletStatus walletStatus;
 
-    // loại ví
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private WalletType walletType;
-
     // lần cuối ví được cập nhật
     @Column(nullable = false)
     private LocalDateTime lastUpdated = LocalDateTime.now();

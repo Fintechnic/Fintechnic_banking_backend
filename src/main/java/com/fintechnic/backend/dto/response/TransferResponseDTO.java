@@ -1,4 +1,4 @@
-package com.fintechnic.backend.dto;
+package com.fintechnic.backend.dto.response;
 
 import lombok.*;
 
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class TransactionDTO {
+public class TransferResponseDTO {
     private String counterparty; // bên còn lại (A đối với B, B đối với A)
     private BigDecimal amount;
     private String description;

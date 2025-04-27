@@ -1,9 +1,8 @@
 package com.fintechnic.backend.controller;
 
-import com.fintechnic.backend.dto.BillRequestDTO;
-import com.fintechnic.backend.dto.BillResponseDTO;
-import com.fintechnic.backend.dto.TransactionDTO;
-import com.fintechnic.backend.model.Bill;
+import com.fintechnic.backend.dto.request.BillRequestDTO;
+import com.fintechnic.backend.dto.response.BillResponseDTO;
+import com.fintechnic.backend.dto.response.TransferResponseDTO;
 import com.fintechnic.backend.service.BillService;
 import com.fintechnic.backend.util.JwtUtil;
 import org.springframework.data.domain.Page;
@@ -36,12 +35,12 @@ public class BillController {
     }
 
     @PostMapping("/bills/{billId}/pay")
-    public ResponseEntity<TransactionDTO> payBill(@PathVariable Long billId,
-                                                  @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<TransferResponseDTO> payBill(@PathVariable Long billId,
+                                                       @RequestHeader("Authorization") String authHeader) {
 
         try {
             Long userId = jwtUtil.extractUserIdFromToken(authHeader);
-            TransactionDTO payment = billService.payBill(billId, userId);
+            TransferResponseDTO payment = billService.payBill(billId, userId);
             return ResponseEntity.ok(payment);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

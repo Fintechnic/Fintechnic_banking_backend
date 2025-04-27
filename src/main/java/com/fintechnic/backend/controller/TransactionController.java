@@ -1,7 +1,10 @@
 package com.fintechnic.backend.controller;
 
-import com.fintechnic.backend.dto.TransactionDTO;
-import com.fintechnic.backend.dto.TransferRequestDTO;
+import com.fintechnic.backend.dto.request.WithdrawRequestDTO;
+import com.fintechnic.backend.dto.response.TransferResponseDTO;
+import com.fintechnic.backend.dto.request.TransferRequestDTO;
+import com.fintechnic.backend.dto.response.WithdrawResponseDTO;
+import com.fintechnic.backend.model.Transaction;
 import com.fintechnic.backend.util.JwtUtil;
 
 import io.jsonwebtoken.JwtException;
@@ -16,7 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/transaction")
+@RequestMapping("/api")
 public class TransactionController {
     private final TransactionService transactionService;
     private final JwtUtil jwtUtil;
@@ -26,35 +29,34 @@ public class TransactionController {
         this.jwtUtil = jwtUtil;
     }
 
-    // lấy danh sách giao dịch
-    @GetMapping("/admin/history")
-    public ResponseEntity<Page<TransactionDTO>> getTransactions(
+    // lấy danh sách giao dịch của admin
+    @GetMapping("/admin/transaction/history")
+    public ResponseEntity<Page<Transaction>> getTransactions(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
 
-    Page<TransactionDTO> transactions = transactionService.getTransactions(page, size);
-    return ResponseEntity.ok(transactions);
+        try {
+            Page<Transaction> transactions = transactionService.getTransactions(page, size);
+            return ResponseEntity.ok(transactions);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
-    
-    @GetMapping("/history")
-    public ResponseEntity<Page<TransactionDTO>> getTransactions(
+
+    // lấy lịch sử giao dịch của người dùng
+    @GetMapping("transaction/history")
+    public ResponseEntity<Page<TransferResponseDTO>> getTransactions(
             @RequestHeader(value = "Authorization", required = false) String authHeader,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.error("Missing or invalid Authorization header");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
         try {
-            String token = authHeader.substring(7);
-            Long userId = jwtUtil.extractUserId(token);
+            Long userId = jwtUtil.extractUserIdFromToken(authHeader);
             if (userId == null) {
                 log.error("Invalid userId extracted from token");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
-            Page<TransactionDTO> transactions = transactionService.getTransactionsByUserId(userId, page, size);
+            Page<TransferResponseDTO> transactions = transactionService.getTransactionsByUserId(userId, page, size);
             return ResponseEntity.ok().body(transactions);
         } catch (JwtException e) {
             log.error("JWT validation failed: {}", e.getMessage());
@@ -65,8 +67,8 @@ public class TransactionController {
         }
     }
 
-    @PostMapping("/transfer")
-    public ResponseEntity<TransactionDTO> createTransfer(
+    @PostMapping("transaction/transfer")
+    public ResponseEntity<TransferResponseDTO> createTransfer(
             @RequestBody @Valid TransferRequestDTO request,
             @RequestHeader("Authorization") String authHeader) {
 
@@ -82,7 +84,7 @@ public class TransactionController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired token");
         }
 
-        TransactionDTO response = transactionService.transfer(
+        TransferResponseDTO response = transactionService.transfer(
                 currentUserId,
                 request.getPhoneNumber(),
                 request.getAmount(),
@@ -90,6 +92,15 @@ public class TransactionController {
         );
 
         return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("/transaction/withdraw")
+    public ResponseEntity<WithdrawResponseDTO> withdraw(@RequestHeader("Authorization") String authHeader,
+                                                        @RequestBody WithdrawRequestDTO request) {
+        Long userId = jwtUtil.extractUserIdFromToken(authHeader);
+        WithdrawResponseDTO response = transactionService.withdraw(request, userId);
+
+        return ResponseEntity.ok(response);
     }
 }
 

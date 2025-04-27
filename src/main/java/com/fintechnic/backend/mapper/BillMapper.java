@@ -1,7 +1,6 @@
 package com.fintechnic.backend.mapper;
 
-import com.fintechnic.backend.dto.BillRequestDTO;
-import com.fintechnic.backend.dto.BillResponseDTO;
+import com.fintechnic.backend.dto.response.BillResponseDTO;
 import com.fintechnic.backend.model.Bill;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
