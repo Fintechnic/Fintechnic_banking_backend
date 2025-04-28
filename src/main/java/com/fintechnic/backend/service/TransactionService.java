@@ -171,6 +171,7 @@ public class TransactionService {
 
         return WithdrawResponseDTO.builder()
                 .amount(request.getAmount().negate())
+                .status(String.valueOf(TransactionStatus.SUCCESS))
                 .createdAt(LocalDateTime.now())
                 .build();
     }
