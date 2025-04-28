@@ -71,7 +71,7 @@ public class UserService {
 
         User registeredUser = userRepository.save(user);
 
-        walletService.createWallet(user); // tạo thêm ví cùng với tài khoản
+        walletService.createMainWallet(user); // tạo thêm ví cùng với tài khoản
 
         return registeredUser;
     }
