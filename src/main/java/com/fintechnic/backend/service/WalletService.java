@@ -25,7 +25,7 @@ public class WalletService {
         this.walletRepository = walletRepository;
     }
 
-    public Wallet createWallet(User user) {
+    public Wallet createMainWallet(User user) {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
@@ -35,6 +35,7 @@ public class WalletService {
 
         Wallet wallet = new Wallet();
         wallet.setUser(user);
+        wallet.setWalletType(WalletType.MAIN);
         wallet.setWalletStatus(WalletStatus.ACTIVE);
 
         return walletRepository.save(wallet);

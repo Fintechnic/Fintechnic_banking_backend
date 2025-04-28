@@ -14,5 +14,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class WithdrawResponseDTO {
     private BigDecimal amount;
+    private String status;
     private LocalDateTime createdAt;
 }
