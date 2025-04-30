@@ -13,7 +13,7 @@ import com.fintechnic.backend.model.TransactionType;
 public class TransactionFilterRequestDTO {
     private String transactionCode;
     private TransactionType transactionType;
-    private List<TransactionStatus> statuses;
+    private TransactionStatus transactionStatus;
     private BigDecimal minAmount;
     private BigDecimal maxAmount;
     private String keyword;

@@ -13,7 +13,7 @@ public class TopUpRequestDTO {
     @NotNull
     private Long agentUserId;  // Bắt buộc khi request
 
-    private String agentFullName;  
+    private String userName;  
 
     private String email;
 

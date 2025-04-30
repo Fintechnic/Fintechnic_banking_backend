@@ -2,6 +2,7 @@ package com.fintechnic.backend.service;
 
 
 import com.fintechnic.backend.dto.WalletSummaryDTO;
+import com.fintechnic.backend.dto.request.WalletRequestDTO;
 import com.fintechnic.backend.model.User;
 import com.fintechnic.backend.model.Wallet;
 import com.fintechnic.backend.model.WalletStatus;
@@ -57,21 +58,27 @@ public class WalletService {
     }
 
 
-    public Wallet searchWallet(Long agentUserId, String username, String email, String phoneNumber) {
+    public Wallet searchWallet(WalletRequestDTO request) {
         Specification<Wallet> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (agentUserId != null) {
-                predicates.add(cb.equal(root.get("user").get("id"), agentUserId)); // Tìm theo agentUserId
+            if (request.getUserId() != null) {
+                predicates.add(cb.equal(root.get("user").get("id"), request.getUserId()));
             }
-            if (username != null && !username.isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.get("user").get("username")), "%" + username.toLowerCase() + "%"));
+
+            // Lọc theo username nếu có
+            if (request.getUsername() != null && !request.getUsername().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("user").get("username")), "%" + request.getUsername().toLowerCase() + "%"));
             }
-            if (email != null && !email.isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.get("user").get("email")), "%" + email.toLowerCase() + "%"));
+
+            // Lọc theo email nếu có
+            if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("user").get("email")), "%" + request.getEmail().toLowerCase() + "%"));
             }
-            if (phoneNumber != null && !phoneNumber.isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.get("user").get("phoneNumber")), "%" + phoneNumber.toLowerCase() + "%"));
+
+            // Lọc theo phoneNumber nếu có
+            if (request.getPhoneNumber() != null && !request.getPhoneNumber().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("user").get("phoneNumber")), "%" + request.getPhoneNumber().toLowerCase() + "%"));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

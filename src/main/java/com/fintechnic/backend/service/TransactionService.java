@@ -152,7 +152,7 @@ public class TransactionService {
         // Trả về thông tin giao dịch
         return TopUpResponseDTO.builder()
             .agentUserId(requestDto.getAgentUserId())
-            .username(requestDto.getAgentFullName())
+            .username(requestDto.getUserName())
             .amount(requestDto.getAmount())
             .description(requestDto.getDescription())
             .status("SUCCESS")
@@ -163,11 +163,6 @@ public class TransactionService {
     }
 
 
-    public Page<TransactionDTO> getAllTransactions(int page, int size) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllTransactions'");
-    }
-    
 
     // Filter giao dịch 
     public Page<TransactionFilterResponseDTO> filterTransactions(TransactionFilterRequestDTO request) {
@@ -181,8 +176,8 @@ public class TransactionService {
             if (request.getTransactionType() != null) {
                 predicates.add(cb.equal(root.get("transactionType"), request.getTransactionType()));
             }
-            if (request.getStatuses() != null && !request.getStatuses().isEmpty()) {
-                predicates.add(root.get("transactionStatus").in(request.getStatuses()));
+            if (request.getTransactionStatus() != null ) {
+                predicates.add(cb.equal(root.get("transactionStatus"), request.getTransactionStatus()));
             }
             if (request.getMinAmount() != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("amount"), request.getMinAmount()));
@@ -191,8 +186,7 @@ public class TransactionService {
                 predicates.add(cb.lessThanOrEqualTo(root.get("amount"), request.getMaxAmount()));
             }
             if (request.getKeyword() != null) {
-                predicates.add(cb.like(cb.lower(root.get("description")),
-                        "%" + request.getKeyword().toLowerCase() + "%"));
+                predicates.add(cb.like(cb.lower(root.get("description")), "%" + request.getKeyword().toLowerCase() + "%"));
             }
             if (request.getFromDate() != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), request.getFromDate()));
