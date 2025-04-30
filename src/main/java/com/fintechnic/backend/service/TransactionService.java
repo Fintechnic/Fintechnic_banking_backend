@@ -1,5 +1,9 @@
 package com.fintechnic.backend.service;
 
+
+import com.fintechnic.backend.dto.request.WithdrawRequestDTO;
+import com.fintechnic.backend.dto.response.TransferResponseDTO;
+import com.fintechnic.backend.dto.response.WithdrawResponseDTO;
 import com.fintechnic.backend.dto.TransactionDTO;
 import com.fintechnic.backend.dto.request.TopUpRequestDTO;
 import com.fintechnic.backend.dto.request.TransactionFilterRequestDTO;
@@ -17,13 +21,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
-
 
 @Service
 public class TransactionService {
@@ -46,9 +51,9 @@ public class TransactionService {
     }
 
     // hiển thị lịch sử giao dịch (cho user)
-    public Page<TransactionDTO> getTransactionsByUserId(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return transactionRepository.findByFromWalletUserIdOrToWalletUserId(userId, userId, pageable)
+    public Page<TransferResponseDTO> getTransactionsByUserId(Long userId, int page, int size) {
+        Pageable getAll = PageRequest.of(page, size);
+        return transactionRepository.findByFromWalletUserIdOrToWalletUserId(userId, userId, getAll)
                 .map(transaction -> transactionMapper.transactionToTransactionDTO(transaction, userId));
     }
 
@@ -62,10 +67,13 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-    public TransactionDTO transfer(Long fromUserId, String toPhoneNumber, BigDecimal amount, String description) {
+    @Transactional
+    public TransferResponseDTO transfer(Long fromUserId, String toPhoneNumber, BigDecimal amount, String description) {
         // kiểm tra ví có tồn tại bằng số điện thoại của người sở hữu ví
-        Wallet fromWallet = walletRepository.findByUserId(fromUserId);
-        Wallet toWallet = walletRepository.findByUserPhoneNumber(toPhoneNumber);
+        Wallet fromWallet = walletRepository.findByUserId(fromUserId)
+                .orElseThrow(() -> new RuntimeException("Source wallet not found"));
+        Wallet toWallet = walletRepository.findByUserPhoneNumber(toPhoneNumber)
+                .orElseThrow(() -> new RuntimeException("Target wallet not found"));
 
         User user = userRepository.findById(fromUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -215,6 +223,33 @@ public class TransactionService {
         return transactionPage.map(this::convertToResponse);
     }
 
+    public WithdrawResponseDTO withdraw(WithdrawRequestDTO request, Long userId) {
+        Wallet wallet = walletRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Wallet not found"));
+
+        if (wallet.getBalance().compareTo(request.getAmount()) < 0) {
+            throw new RuntimeException("Not enough balance in wallet");
+        }
+        wallet.setBalance(wallet.getBalance().subtract(request.getAmount()));
+
+        Transaction transaction = Transaction.builder()
+                .transactionStatus(TransactionStatus.SUCCESS)
+                .transactionType(TransactionType.WITHDRAW)
+                .amount(request.getAmount())
+                .toWallet(wallet)
+                .fromWallet(wallet)
+                .build();
+
+        walletRepository.save(wallet);
+        transactionRepository.save(transaction);
+
+        return WithdrawResponseDTO.builder()
+                .amount(request.getAmount().negate())
+                .status(String.valueOf(TransactionStatus.SUCCESS))
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
     private TransactionFilterResponseDTO convertToResponse(Transaction transaction) {
         TransactionFilterResponseDTO response = new TransactionFilterResponseDTO();
         response.setTransactionCode(transaction.getTransactionCode());
@@ -227,5 +262,4 @@ public class TransactionService {
         response.setToWalletId(transaction.getToWallet() != null ? transaction.getToWallet().getId() : null);
         return response;
     }
-
 }

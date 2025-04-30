@@ -1,4 +1,4 @@
-package com.fintechnic.backend.dto;
+package com.fintechnic.backend.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,8 +11,6 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BillRequestDTO {
-    private String type;
-    private String phoneNumber;
+public class WithdrawRequestDTO {
     private BigDecimal amount;
 }
