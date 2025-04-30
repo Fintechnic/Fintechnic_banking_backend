@@ -1,8 +1,11 @@
 package com.fintechnic.backend.controller;
 
 import com.fintechnic.backend.dto.TransactionDTO;
-import com.fintechnic.backend.dto.TransferRequestDTO;
+import com.fintechnic.backend.dto.request.TransactionFilterRequestDTO;
+import com.fintechnic.backend.dto.request.TransferRequestDTO;
+import com.fintechnic.backend.model.Transaction;
 import com.fintechnic.backend.util.JwtUtil;
+import com.fintechnic.backend.dto.response.TransactionFilterResponseDTO;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
@@ -13,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.fintechnic.backend.service.TransactionService;
 import org.springframework.web.server.ResponseStatusException;
+
 
 @Slf4j
 @RestController
@@ -28,11 +32,11 @@ public class TransactionController {
 
     // lấy danh sách giao dịch
     @GetMapping("/admin/history")
-    public ResponseEntity<Page<TransactionDTO>> getTransactions(
+    public ResponseEntity<Page<Transaction>> getTransactions(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
 
-    Page<TransactionDTO> transactions = transactionService.getTransactions(page, size);
+    Page<Transaction> transactions = transactionService.getTransactions(page, size);
     return ResponseEntity.ok(transactions);
     }
     
@@ -91,6 +95,12 @@ public class TransactionController {
 
         return ResponseEntity.ok().body(response);
     }
+
+    @PostMapping("/admin/filter")
+    public Page<TransactionFilterResponseDTO> filterTransactions(@Valid @RequestBody TransactionFilterRequestDTO request){
+        return transactionService.filterTransactions(request);
+    }
+    
 }
 
 

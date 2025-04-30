@@ -1,7 +1,7 @@
 package com.fintechnic.backend.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fintechnic.backend.dto.QRCodeRequestDTO;
+import com.fintechnic.backend.dto.request.QRCodeRequestDTO;
 import com.fintechnic.backend.service.QRCodeScannerService;
 import io.jsonwebtoken.security.InvalidKeyException;
 import lombok.extern.slf4j.Slf4j;

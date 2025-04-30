@@ -5,13 +5,15 @@ import com.fintechnic.backend.model.Wallet;
 import java.math.BigDecimal;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface WalletRepository extends JpaRepository<Wallet, Long> {
+public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecificationExecutor<Wallet> {
     Wallet findByUserId(Long userId);
     Wallet findByUserPhoneNumber(String phoneNumber);
+    Wallet findByUserEmail(String email);
   
     @Query("SELECT SUM(w.balance) FROM Wallet w")
     BigDecimal getTotalSystemBalance();
