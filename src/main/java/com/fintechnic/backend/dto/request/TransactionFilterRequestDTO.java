@@ -1,4 +1,4 @@
-package com.fintechnic.backend.dto;
+package com.fintechnic.backend.dto.request;
 
 
 import lombok.Data;

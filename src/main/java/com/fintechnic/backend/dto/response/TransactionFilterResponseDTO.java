@@ -1,4 +1,4 @@
-package com.fintechnic.backend.dto;
+package com.fintechnic.backend.dto.response;
 
 import lombok.Data;
 import java.math.BigDecimal;

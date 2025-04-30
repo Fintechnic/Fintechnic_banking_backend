@@ -6,12 +6,7 @@ import com.fintechnic.backend.model.User;
 import com.fintechnic.backend.model.Wallet;
 import com.fintechnic.backend.model.WalletStatus;
 import com.fintechnic.backend.model.WalletType;
-import com.fintechnic.backend.repository.TransactionRepository;
-import com.fintechnic.backend.repository.UserRepository;
 import com.fintechnic.backend.repository.WalletRepository;
-
-
-import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 

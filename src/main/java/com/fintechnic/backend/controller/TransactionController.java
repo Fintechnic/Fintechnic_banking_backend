@@ -1,11 +1,11 @@
 package com.fintechnic.backend.controller;
 
 import com.fintechnic.backend.dto.TransactionDTO;
-import com.fintechnic.backend.dto.TransactionFilterRequestDTO;
-import com.fintechnic.backend.dto.TransferRequestDTO;
+import com.fintechnic.backend.dto.request.TransactionFilterRequestDTO;
+import com.fintechnic.backend.dto.request.TransferRequestDTO;
 import com.fintechnic.backend.model.Transaction;
 import com.fintechnic.backend.util.JwtUtil;
-import com.fintechnic.backend.dto.TransactionFilterResponseDTO;
+import com.fintechnic.backend.dto.response.TransactionFilterResponseDTO;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;

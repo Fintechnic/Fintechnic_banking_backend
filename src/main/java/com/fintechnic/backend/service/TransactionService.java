@@ -2,8 +2,8 @@ package com.fintechnic.backend.service;
 
 import com.fintechnic.backend.dto.TopUpDTO;
 import com.fintechnic.backend.dto.TransactionDTO;
-import com.fintechnic.backend.dto.TransactionFilterRequestDTO;
-import com.fintechnic.backend.dto.TransactionFilterResponseDTO;
+import com.fintechnic.backend.dto.request.TransactionFilterRequestDTO;
+import com.fintechnic.backend.dto.response.TransactionFilterResponseDTO;
 import com.fintechnic.backend.mapper.TransactionMapper;
 import com.fintechnic.backend.model.*;
 import com.fintechnic.backend.repository.TransactionRepository;
@@ -19,11 +19,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.persistence.criteria.Predicate;
-import java.util.stream.Collectors;
+
 
 @Service
 public class TransactionService {
