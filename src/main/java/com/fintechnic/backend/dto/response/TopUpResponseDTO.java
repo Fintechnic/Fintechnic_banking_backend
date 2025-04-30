@@ -1,4 +1,4 @@
-package com.fintechnic.backend.dto;
+package com.fintechnic.backend.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -13,18 +13,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL) // chỉ trả về field nào có giá trị
-public class TopUpDTO {
+public class TopUpResponseDTO {
 
-    // Dùng cho cả request và response
     @NotNull
     private Long agentUserId;                // Bắt buộc khi request
 
-    // Response-only
-    private String agentFullName;            // Optional: chỉ dùng để hiển thị trên UI
+    private String username;
     private BigDecimal newBalance;             
     private String transactionId;            // Mã giao dịch trả về cho UI
-
-    // Request + response
     private BigDecimal amount;               // Số tiền nạp
     private String description;              // Mô tả giao dịch
     private String status;                   

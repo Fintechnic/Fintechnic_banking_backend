@@ -7,8 +7,13 @@ import com.fintechnic.backend.model.Wallet;
 import com.fintechnic.backend.model.WalletStatus;
 import com.fintechnic.backend.model.WalletType;
 import com.fintechnic.backend.repository.WalletRepository;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.criteria.Predicate;
 
 import org.springframework.stereotype.Service;
         
@@ -50,4 +55,31 @@ public class WalletService {
         Wallet wallet = walletRepository.findByUserId(userId);
         return wallet.getBalance();
     }
+
+
+    public Wallet searchWallet(Long agentUserId, String username, String email, String phoneNumber) {
+        Specification<Wallet> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (agentUserId != null) {
+                predicates.add(cb.equal(root.get("user").get("id"), agentUserId)); // Tìm theo agentUserId
+            }
+            if (username != null && !username.isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("user").get("username")), "%" + username.toLowerCase() + "%"));
+            }
+            if (email != null && !email.isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("user").get("email")), "%" + email.toLowerCase() + "%"));
+            }
+            if (phoneNumber != null && !phoneNumber.isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("user").get("phoneNumber")), "%" + phoneNumber.toLowerCase() + "%"));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // Tìm ví agent dựa trên Specification
+        Wallet wallet = walletRepository.findAll(spec).stream().findFirst().orElseThrow(() -> new RuntimeException("Agent wallet not found"));
+        return wallet;
+    }
 }
+

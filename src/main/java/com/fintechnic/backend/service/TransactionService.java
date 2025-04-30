@@ -1,8 +1,9 @@
 package com.fintechnic.backend.service;
 
-import com.fintechnic.backend.dto.TopUpDTO;
 import com.fintechnic.backend.dto.TransactionDTO;
+import com.fintechnic.backend.dto.request.TopUpRequestDTO;
 import com.fintechnic.backend.dto.request.TransactionFilterRequestDTO;
+import com.fintechnic.backend.dto.response.TopUpResponseDTO;
 import com.fintechnic.backend.dto.response.TransactionFilterResponseDTO;
 import com.fintechnic.backend.mapper.TransactionMapper;
 import com.fintechnic.backend.model.*;
@@ -10,19 +11,18 @@ import com.fintechnic.backend.repository.TransactionRepository;
 import com.fintechnic.backend.repository.UserRepository;
 import com.fintechnic.backend.repository.WalletRepository;
 
-
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.transaction.Transactional;
 
 
 @Service
@@ -113,51 +113,55 @@ public class TransactionService {
     }
 
     //Thêm tiền vào tài khoản agent
-    public TopUpDTO addMoneyToAgent(TopUpDTO requesDto){
-        Wallet agentWallet = walletRepository.findByUserId(requesDto.getAgentUserId());
+    @Transactional
+    public TopUpResponseDTO addMoneyToAgent(TopUpRequestDTO requestDto) {
+
+        Wallet agentWallet = walletRepository.findByUserId(requestDto.getAgentUserId());
+
         if (agentWallet == null){
             throw new RuntimeException("Agent wallet is not found");
         }
 
+        // Kiểm tra trạng thái ví agent
         if (agentWallet.getWalletStatus() == WalletStatus.CLOSED ||
             agentWallet.getWalletStatus() == WalletStatus.INACTIVE ||
             agentWallet.getWalletStatus() == WalletStatus.SUSPENDED) {
             throw new RuntimeException("Agent account cannot receive money");
         }
 
-        //Thêm tiền vào ví agent
-        BigDecimal newBalance = agentWallet.getBalance().add(requesDto.getAmount());
+        // Thêm tiền vào ví agent
+        BigDecimal newBalance = agentWallet.getBalance().add(requestDto.getAmount());
+        if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new RuntimeException("Insufficient funds for top-up");
+        }
         agentWallet.setBalance(newBalance);
         walletRepository.save(agentWallet);
 
-
-
         // Lưu vào lịch sử giao dịch
         Transaction transaction = Transaction.builder()
-                .fromWallet(agentWallet) // Tạm coi ví của agent là ví nguồn
-                .toWallet(agentWallet)   // Ví người nhận cũng là ví agent (vì chỉ thêm tiền vào ví agent)
-                .amount(requesDto.getAmount())
-                .description(requesDto.getDescription())
+                .fromWallet(agentWallet)
+                .toWallet(agentWallet)   // Ví người nhận cũng là ví agent
+                .amount(requestDto.getAmount())
+                .description(requestDto.getDescription())
                 .transactionStatus(TransactionStatus.SUCCESS)
-                .transactionType(TransactionType.TOP_UP) // Loại giao dịch là nạp tiền
+                .transactionType(TransactionType.TOP_UP)
                 .build();
 
         transactionRepository.save(transaction);
 
-        
-        
-        return TopUpDTO.builder()
-            .agentUserId(requesDto.getAgentUserId())
-            .agentFullName(requesDto.getAgentFullName())
-            .amount(requesDto.getAmount())
-            .description(requesDto.getDescription())
+        // Trả về thông tin giao dịch
+        return TopUpResponseDTO.builder()
+            .agentUserId(requestDto.getAgentUserId())
+            .username(requestDto.getAgentFullName())
+            .amount(requestDto.getAmount())
+            .description(requestDto.getDescription())
             .status("SUCCESS")
             .transactionId(transaction.getId().toString())
             .newBalance(newBalance)
             .createdAt(transaction.getCreatedAt())
             .build();
-
     }
+
 
     public Page<TransactionDTO> getAllTransactions(int page, int size) {
         // TODO Auto-generated method stub
