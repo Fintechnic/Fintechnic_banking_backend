@@ -11,7 +11,7 @@ import com.fintechnic.backend.service.TransactionService;
 import com.fintechnic.backend.service.WalletService;
 
 @RestController
-@RequestMapping("/api/transaction/admin")
+@RequestMapping("/api/admin/transaction")
 public class TopUpController {
     private final WalletService walletService;
     private final TransactionService transactionService;

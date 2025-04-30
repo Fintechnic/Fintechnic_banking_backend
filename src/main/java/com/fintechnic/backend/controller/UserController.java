@@ -17,7 +17,7 @@ import com.fintechnic.backend.service.UserService;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/user/admin")
+@RequestMapping("/api/admin/user")
 public class UserController {
     private UserService userService;
 
@@ -48,7 +48,7 @@ public class UserController {
     
     //Unlock người dùng
     @PostMapping("/unlock")
-    public ResponseEntity<String> unlockUser(String username) {
+    public ResponseEntity<String> unlockUser(@RequestBody String username) {
         userService.unlockUser(username);
         return ResponseEntity.ok("User account has been unlocked.");
     }

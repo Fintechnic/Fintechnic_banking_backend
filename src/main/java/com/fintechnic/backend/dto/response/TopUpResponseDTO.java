@@ -20,7 +20,7 @@ public class TopUpResponseDTO {
 
     private String username;
     private BigDecimal newBalance;             
-    private String transactionId;            // Mã giao dịch trả về cho UI
+    private String transactionCode;            // Mã giao dịch trả về cho UI
     private BigDecimal amount;               // Số tiền nạp
     private String description;              // Mô tả giao dịch
     private String status;                   

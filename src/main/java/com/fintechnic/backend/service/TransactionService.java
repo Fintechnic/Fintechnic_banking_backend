@@ -4,7 +4,6 @@ package com.fintechnic.backend.service;
 import com.fintechnic.backend.dto.request.WithdrawRequestDTO;
 import com.fintechnic.backend.dto.response.TransferResponseDTO;
 import com.fintechnic.backend.dto.response.WithdrawResponseDTO;
-import com.fintechnic.backend.dto.TransactionDTO;
 import com.fintechnic.backend.dto.request.TopUpRequestDTO;
 import com.fintechnic.backend.dto.request.TransactionFilterRequestDTO;
 import com.fintechnic.backend.dto.response.TopUpResponseDTO;
@@ -15,6 +14,7 @@ import com.fintechnic.backend.repository.TransactionRepository;
 import com.fintechnic.backend.repository.UserRepository;
 import com.fintechnic.backend.repository.WalletRepository;
 
+import com.fintechnic.backend.util.CryptoUtil;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +28,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.persistence.criteria.Predicate;
-import jakarta.transaction.Transactional;
 
 @Service
 public class TransactionService {
@@ -123,12 +122,11 @@ public class TransactionService {
     //Thêm tiền vào tài khoản agent
     @Transactional
     public TopUpResponseDTO addMoneyToAgent(TopUpRequestDTO requestDto) {
+        Wallet agentWallet = walletRepository.findByUserPhoneNumber(requestDto.getPhoneNumber()).
+                orElseThrow(() -> new RuntimeException("Agent wallet not found"));
 
-        Wallet agentWallet = walletRepository.findByUserId(requestDto.getAgentUserId());
-
-        if (agentWallet == null){
-            throw new RuntimeException("Agent wallet is not found");
-        }
+        User user = userRepository.findByPhoneNumber(requestDto.getPhoneNumber())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Kiểm tra trạng thái ví agent
         if (agentWallet.getWalletStatus() == WalletStatus.CLOSED ||
@@ -159,13 +157,12 @@ public class TransactionService {
 
         // Trả về thông tin giao dịch
         return TopUpResponseDTO.builder()
-            .agentUserId(requestDto.getAgentUserId())
-            .username(requestDto.getUserName())
+            .username(user.getUsername())
             .amount(requestDto.getAmount())
             .description(requestDto.getDescription())
             .status("SUCCESS")
-            .transactionId(transaction.getId().toString())
-            .newBalance(newBalance)
+            .transactionCode(transaction.getTransactionCode())
+            .newBalance(agentWallet.getBalance())
             .createdAt(transaction.getCreatedAt())
             .build();
     }

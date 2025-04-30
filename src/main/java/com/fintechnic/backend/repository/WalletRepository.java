@@ -13,7 +13,6 @@ import java.util.Optional;
 public interface WalletRepository extends JpaRepository<Wallet, Long>, JpaSpecificationExecutor<Wallet> {
     Optional<Wallet> findByUserId(Long userId);
     Optional<Wallet> findByUserPhoneNumber(String phoneNumber);
-    Optional<Wallet> findByUserEmail(String email);
 
     @Query("SELECT SUM(w.balance) FROM Wallet w")
     BigDecimal getTotalSystemBalance();

@@ -11,14 +11,8 @@ import java.math.BigDecimal;
 public class TopUpRequestDTO {
 
     @NotNull
-    private Long agentUserId;  // Bắt buộc khi request
-
-    private String userName;  
-
-    private String email;
-
     private String phoneNumber;
-    
+
     @NotNull
     private BigDecimal amount; // Số tiền nạp
 

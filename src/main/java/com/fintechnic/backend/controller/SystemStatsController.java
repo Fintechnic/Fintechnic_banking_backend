@@ -12,11 +12,11 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/systemstats/")
+@RequestMapping("/api/admin/")
 public class SystemStatsController {
     private final SystemStatsService systemStatsService;
 
-    @GetMapping("/admin")
+    @GetMapping("/systemstats")
     public ResponseEntity<SystemStatsDTO> getAllStats(){
         return ResponseEntity.ok(systemStatsService.getAllStats());
         
