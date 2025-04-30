@@ -2,7 +2,6 @@ package com.fintechnic.backend.service;
 
 import com.fintechnic.backend.dto.HomeDTO;
 import com.fintechnic.backend.model.User;
-import com.fintechnic.backend.model.Wallet;
 import com.fintechnic.backend.repository.UserRepository;
 import com.fintechnic.backend.util.JwtUtil;
 import org.springframework.stereotype.Service;

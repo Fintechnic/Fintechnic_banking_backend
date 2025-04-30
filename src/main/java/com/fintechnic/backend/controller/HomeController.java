@@ -2,7 +2,7 @@ package com.fintechnic.backend.controller;
 
 import com.fintechnic.backend.dto.HomeDTO;
 import com.fintechnic.backend.service.HomeService;
-import com.fintechnic.backend.util.JwtUtil;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

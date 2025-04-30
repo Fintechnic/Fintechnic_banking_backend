@@ -1,17 +1,28 @@
 package com.fintechnic.backend.service;
 
+import com.fintechnic.backend.dto.UserActionDTO;
+import com.fintechnic.backend.dto.UserDTO;
+import com.fintechnic.backend.dto.UserListDTO;
 import com.fintechnic.backend.model.User;
+
 import com.fintechnic.backend.model.WalletType;
 import com.fintechnic.backend.repository.UserRepository;
 import com.fintechnic.backend.util.CryptoUtil;
 import com.fintechnic.backend.util.JwtUtil;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
+
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
 
 @Service
 public class UserService {
@@ -23,6 +34,8 @@ public class UserService {
     private static final int MAX_FAILED_ATTEMPTS = 5;
     private static final long LOCK_DURATION_MINUTES = 30;
 
+
+    
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtUtil jwtUtil, WalletService walletService) {
@@ -158,4 +171,72 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
+
+    //Dashboard Admin
+    
+    //Tìm kiếm và danh sách người dùng
+    public Page<UserListDTO> getUsers(UserDTO request, int page, int size) {
+        Specification<User> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+    
+            if (request.getUsername() != null && !request.getUsername().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("username")), "%" + request.getUsername().toLowerCase() + "%"));
+            }
+    
+            if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("email")), "%" + request.getEmail().toLowerCase() + "%"));
+            }
+    
+            if (request.getPhoneNumber() != null && !request.getPhoneNumber().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("phoneNumber")), "%" + request.getPhoneNumber().toLowerCase() + "%"));
+            }
+    
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    
+        // Tạo PageRequest để phân trang theo username và sắp xếp theo thứ tự tăng dần
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "username"));
+    
+        // Tìm kiếm người dùng và trả về kết quả dưới dạng Page
+        Page<User> userPage = userRepository.findAll(spec, pageRequest);
+    
+        // Chuyển đổi từ Page<User> thành Page<UserListDTO>
+        return userPage.map(this::convertToDTO);
+    }
+    
+
+
+    // Phương thức chuyển đổi từ User sang UserListDTO
+    private UserListDTO convertToDTO(User user) {
+        UserListDTO response = new UserListDTO();
+        response.setUsername(user.getUsername());
+        response.setEmail(user.getEmail());
+        response.setPhoneNumber(user.getPhoneNumber());
+        response.setRole(user.getRole());  
+        response.setAccountLocked(user.getAccountLocked());  
+        response.setCreatedAt(user.getCreatedAt()); 
+        response.setId(user.getId());
+        return response;
+    }
+    
+    //Xem chi tiết người dùng
+    public User getUserDetails(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+    
+    //Reset password người dùng
+    public String resetUserPassword(Long userId, UserActionDTO request) {
+        // Kiểm tra người dùng có tồn tại không
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    
+        String encodedPassword = passwordEncoder.encode(request.getNewPassword());  // Mã hóa mật khẩu mới
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+        return "Password for user with ID " + userId + " has been reset successfully.";
+    }
+    
+    
+
 }
