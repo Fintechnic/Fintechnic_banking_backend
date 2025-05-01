@@ -4,8 +4,10 @@ import com.fintechnic.backend.dto.request.WithdrawRequestDTO;
 import com.fintechnic.backend.dto.response.TransferResponseDTO;
 import com.fintechnic.backend.dto.request.TransferRequestDTO;
 import com.fintechnic.backend.dto.response.WithdrawResponseDTO;
+import com.fintechnic.backend.dto.request.TransactionFilterRequestDTO;
 import com.fintechnic.backend.model.Transaction;
 import com.fintechnic.backend.util.JwtUtil;
+import com.fintechnic.backend.dto.response.TransactionFilterResponseDTO;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
@@ -16,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.fintechnic.backend.service.TransactionService;
 import org.springframework.web.server.ResponseStatusException;
+
 
 @Slf4j
 @RestController
@@ -29,8 +32,8 @@ public class TransactionController {
         this.jwtUtil = jwtUtil;
     }
 
-    // lấy danh sách giao dịch của admin
-    @GetMapping("/admin/transaction/history")
+    // lấy danh sách giao dịch
+    @GetMapping("/admin/history")
     public ResponseEntity<Page<Transaction>> getTransactions(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
@@ -101,6 +104,11 @@ public class TransactionController {
         WithdrawResponseDTO response = transactionService.withdraw(request, userId);
 
         return ResponseEntity.ok(response);
+    }
+  
+    @PostMapping("/admin/filter")
+    public Page<TransactionFilterResponseDTO> filterTransactions(@Valid @RequestBody TransactionFilterRequestDTO request){
+        return transactionService.filterTransactions(request);
     }
 }
 

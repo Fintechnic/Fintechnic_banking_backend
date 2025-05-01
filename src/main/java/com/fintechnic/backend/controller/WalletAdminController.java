@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/transaction/admin")
+@RequestMapping("/api/admin/wallet")
 public class WalletAdminController {
     private final WalletService walletService;
 
