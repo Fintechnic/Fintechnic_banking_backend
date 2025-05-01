@@ -5,7 +5,6 @@ import com.fintechnic.backend.dto.UserDTO;
 import com.fintechnic.backend.dto.UserListDTO;
 import com.fintechnic.backend.model.User;
 
-import com.fintechnic.backend.model.WalletType;
 import com.fintechnic.backend.repository.UserRepository;
 import com.fintechnic.backend.util.CryptoUtil;
 import com.fintechnic.backend.util.JwtUtil;

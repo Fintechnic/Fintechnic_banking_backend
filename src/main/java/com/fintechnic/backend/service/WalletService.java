@@ -83,8 +83,7 @@ public class WalletService {
         };
 
         // Tìm ví agent dựa trên Specification
-        Wallet wallet = walletRepository.findAll(spec).stream().findFirst().orElseThrow(() -> new RuntimeException("Agent wallet not found"));
-        return wallet;
+        return walletRepository.findAll(spec).stream().findFirst().orElseThrow(() -> new RuntimeException("Agent wallet not found"));
     }
 }
 

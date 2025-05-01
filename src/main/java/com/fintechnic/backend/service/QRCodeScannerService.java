@@ -28,7 +28,10 @@ public class QRCodeScannerService {
     public Map<String, Object> processQRCodeData(String encryptedData, String authHeader) throws Exception {
         String transactionInformation = CryptoUtil.decrypt(encryptedData);
 
-        Map<String, Object> json = objectMapper.readValue(transactionInformation, Map.class);
+        Map<String, Object> json = objectMapper.readValue(
+                transactionInformation,
+                objectMapper.getTypeFactory().constructMapType(Map.class, String.class, Object.class)
+        );
 
         // xác nhận expiration date của mã QR
         validateExpiration(json);
@@ -54,7 +57,7 @@ public class QRCodeScannerService {
         if (!(expObj instanceof Number)) {
             throw new IllegalArgumentException("Expiration time is missing or invalid");
         }
-        Long exp = ((Number) expObj).longValue();
+        long exp = ((Number) expObj).longValue();
         if (LocalDateTime.ofInstant(Instant.ofEpochMilli(exp), ZoneId.systemDefault())
                 .isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("QR code has expired");

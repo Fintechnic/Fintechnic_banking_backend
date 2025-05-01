@@ -1,6 +1,5 @@
 package com.fintechnic.backend.controller;
 
-import org.springframework.http.HttpStatus;
 import com.fintechnic.backend.dto.request.TopUpRequestDTO;
 import com.fintechnic.backend.dto.request.WalletRequestDTO;
 import com.fintechnic.backend.dto.response.TopUpResponseDTO;

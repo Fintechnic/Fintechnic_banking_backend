@@ -4,7 +4,6 @@ package com.fintechnic.backend.dto.request;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import com.fintechnic.backend.model.TransactionStatus;
 import com.fintechnic.backend.model.TransactionType;

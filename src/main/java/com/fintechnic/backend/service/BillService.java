@@ -38,7 +38,7 @@ public class BillService {
     public Page<BillResponseDTO> getBillsByUserId(Long userId, int page, int size) {
         Pageable getAll = PageRequest.of(page, size);
         return billRepository.findByUserIdAndIsPaid(userId, false, getAll)
-                .map(bill -> billMapper.billToBillResponseDTO(bill));
+                .map(billMapper::billToBillResponseDTO);
     }
 
     // thanh toán bill

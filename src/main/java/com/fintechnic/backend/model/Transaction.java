@@ -66,7 +66,7 @@ public class Transaction {
     @PrePersist
     private void generateTransactionCode() {
         if (transactionCode == null) {
-            transactionCode = "TX-" + UUID.randomUUID().toString();
+            transactionCode = "TX-" + UUID.randomUUID();
         }
     }
 }

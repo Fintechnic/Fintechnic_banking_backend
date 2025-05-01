@@ -14,7 +14,6 @@ import com.fintechnic.backend.repository.TransactionRepository;
 import com.fintechnic.backend.repository.UserRepository;
 import com.fintechnic.backend.repository.WalletRepository;
 
-import com.fintechnic.backend.util.CryptoUtil;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -73,9 +72,6 @@ public class TransactionService {
                 .orElseThrow(() -> new RuntimeException("Source wallet not found"));
         Wallet toWallet = walletRepository.findByUserPhoneNumber(toPhoneNumber)
                 .orElseThrow(() -> new RuntimeException("Target wallet not found"));
-
-        User user = userRepository.findById(fromUserId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
 
         // kiểm tra status của ví
         if (fromWallet.getWalletStatus() == WalletStatus.CLOSED ||
