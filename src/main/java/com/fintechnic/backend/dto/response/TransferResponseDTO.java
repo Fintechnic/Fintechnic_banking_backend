@@ -15,6 +15,7 @@ public class TransferResponseDTO {
     private BigDecimal amount;
     private String description;
     private String status;
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
     private String type;
 }

@@ -24,5 +24,6 @@ public class TopUpResponseDTO {
     private BigDecimal amount;               // Số tiền nạp
     private String description;              // Mô tả giao dịch
     private String status;                   
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now(); // Thời gian tạo
 }
