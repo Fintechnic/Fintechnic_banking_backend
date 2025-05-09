@@ -36,16 +36,6 @@
 ```
 - 🔐 **Authorization required**: Yes
 
-### Unlock User
-- **Method:** `POST`
-- **URL:** `{{base_url}}/api/auth/unlock`
-- **Request Body:**
-```json
-{
-  "username": "testuser"
-}
-```
-- 🔐 **Authorization required**: Yes
 
 ## Bill Endpoints
 ### Get User Bills
@@ -166,3 +156,65 @@
 - **Method:** `GET`
 - **URL:** `{{base_url}}/api/admin/wallet/summary`
 - 🔐 **Authorization required**: Yes
+  
+
+## User Management Endpoints
+### Search And List Users
+- **Method:** `POST`
+- **URL:** `{{base_url}}/api/admin/user`
+- **Request Body:**
+```json
+{
+  “username”:  “testuser”,
+  “email”:   “test@email.com”
+}
+```
+- 🔐 **Authorization required**: Yes
+
+
+
+### Detail User
+- **Method:** `GET`
+- **URL:** `{{base_url}}/api/admin/user/1`
+- 🔐 **Authorization required**: Yes
+
+### Reset Password
+- **Method:** `POST`
+- **URL:** `{{base_url}}/api/admin/user/1/reset-password`
+- **Request Body:**
+```json
+{
+  “newPassword”:  “123abc”
+}
+```
+- 🔐 **Authorization required**: Yes
+
+### Update Role
+- **Method:** `POST`
+- **URL:** `{{base_url}}/api/admin/user/1/update-role`
+- **Request Body:**
+```json
+{
+  “newRole”:   “ADMIN”
+}
+```
+- 🔐 **Authorization required**: Yes
+
+### Unlock User
+- **Method:** `POST`
+- **URL:** `{{base_url}}/api/admin/user/1/unlock`
+- **Request Body:**
+```json
+{
+  "username": "testuser"
+}
+```
+- 🔐 **Authorization required**: Yes
+
+## Stats Endpoint
+### System Stats Summary
+- **Method:** `GET`
+- **URL:** `{{base_url}}/api/admin/system-stats`
+- 🔐 **Authorization required**: Yes
+
+
