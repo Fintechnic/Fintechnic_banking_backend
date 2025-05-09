@@ -17,7 +17,7 @@ import com.fintechnic.backend.service.UserService;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/user/admin")
+@RequestMapping("/api/admin/user")
 public class UserController {
     private UserService userService;
 
