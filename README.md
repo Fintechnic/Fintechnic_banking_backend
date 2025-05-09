@@ -165,8 +165,8 @@
 - **Request Body:**
 ```json
 {
-  “username”:  “testuser”,
-  “email”:   “test@email.com”
+  "username": "testuser",
+  "email": "test@gmail.com"
 }
 ```
 - 🔐 **Authorization required**: Yes
@@ -184,7 +184,7 @@
 - **Request Body:**
 ```json
 {
-  “newPassword”:  “123abc”
+  "newPassword": "123abc"
 }
 ```
 - 🔐 **Authorization required**: Yes
@@ -195,7 +195,7 @@
 - **Request Body:**
 ```json
 {
-  “newRole”:   “ADMIN”
+  "newRole": "ADMIN"
 }
 ```
 - 🔐 **Authorization required**: Yes
