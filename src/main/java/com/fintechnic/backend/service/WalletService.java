@@ -26,7 +26,7 @@ public class WalletService {
         this.walletRepository = walletRepository;
     }
 
-    public Wallet createMainWallet(User user) {
+    public void createMainWallet(User user) {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
@@ -39,15 +39,15 @@ public class WalletService {
         wallet.setWalletType(WalletType.MAIN);
         wallet.setWalletStatus(WalletStatus.ACTIVE);
 
-        return walletRepository.save(wallet);
+        walletRepository.save(wallet);
     }
 
-    public WalletSummaryDTO getWalletSummary() {
-        BigDecimal total = walletRepository.getTotalSystemBalance();
-        BigDecimal average = walletRepository.getAverageUserBalance();
-        
-        return new WalletSummaryDTO(total, average);
-    }
+//    public WalletSummaryDTO getWalletSummary() {
+//        BigDecimal total = walletRepository.getTotalSystemBalance();
+//        BigDecimal average = walletRepository.getAverageUserBalance();
+//
+//        return new WalletSummaryDTO(total, average);
+//    }
 
     public BigDecimal getBalance(Long userId) {
         Wallet wallet = walletRepository.findByUserId(userId)

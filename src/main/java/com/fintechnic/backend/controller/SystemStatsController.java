@@ -16,10 +16,8 @@ import lombok.RequiredArgsConstructor;
 public class SystemStatsController {
     private final SystemStatsService systemStatsService;
 
-    @GetMapping("/systemstats")
+    @GetMapping("/system-stats")
     public ResponseEntity<SystemStatsDTO> getAllStats(){
         return ResponseEntity.ok(systemStatsService.getAllStats());
-        
     }
-
 }
