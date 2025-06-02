@@ -45,7 +45,7 @@
 
 ### Pay Bill
 - **Method:** `POST`
-- **URL:** `{{base_url}}/api/bills/1/pay`
+- **URL:** `{{base_url}}/api/bills//{userId}pay`
 - 🔐 **Authorization required**: Yes
 
 ### Create New Bill (Admin)
@@ -175,12 +175,12 @@
 
 ### Detail User
 - **Method:** `GET`
-- **URL:** `{{base_url}}/api/admin/user/1`
+- **URL:** `{{base_url}}/api/admin/user/{userId}`
 - 🔐 **Authorization required**: Yes
 
 ### Reset Password
 - **Method:** `POST`
-- **URL:** `{{base_url}}/api/admin/user/1/reset-password`
+- **URL:** `{{base_url}}/api/admin/user/{userId}/reset-password`
 - **Request Body:**
 ```json
 {
@@ -191,7 +191,7 @@
 
 ### Update Role
 - **Method:** `POST`
-- **URL:** `{{base_url}}/api/admin/user/1/update-role`
+- **URL:** `{{base_url}}/api/admin/user/{userId}/update-role`
 - **Request Body:**
 ```json
 {
@@ -202,7 +202,7 @@
 
 ### Unlock User
 - **Method:** `POST`
-- **URL:** `{{base_url}}/api/admin/user/1/unlock`
+- **URL:** `{{base_url}}/api/admin/user/{userId}/unlock`
 - **Request Body:**
 ```json
 {
