@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.fintechnic.backend.service.UserService;
 
+import java.util.Map;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/admin/user")
@@ -48,7 +50,8 @@ public class UserController {
     
     //Unlock người dùng
     @PostMapping("/unlock")
-    public ResponseEntity<String> unlockUser(@RequestBody String username) {
+    public ResponseEntity<String> unlockUser(@RequestBody Map<String, String> request) {
+        String username = request.get("username");
         userService.unlockUser(username);
         return ResponseEntity.ok("User account has been unlocked.");
     }
@@ -66,11 +69,5 @@ public class UserController {
     // Gọi service reset password và lấy thông báo thành công
     String message = userService.resetUserPassword(userId, request);
     return ResponseEntity.ok(message);
-}
-
-
-
-
-
-    
+    }
 }
