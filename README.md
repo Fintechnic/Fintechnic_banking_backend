@@ -1,5 +1,9 @@
 # 📘 Fintechnic API Documentation
 
+## Authorization
+- Unauthorized APIs: /api/auth/**
+- Admin only: /api/admin/**
+
 ## Auth Endpoints
 ### Register
 - **Method:** `POST`
