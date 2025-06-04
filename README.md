@@ -45,7 +45,7 @@
 
 ### Pay Bill
 - **Method:** `POST`
-- **URL:** `{{base_url}}/api/bills//{userId}pay`
+- **URL:** `{{base_url}}/api/bills//{userId}/pay`
 - 🔐 **Authorization required**: Yes
 
 ### Create New Bill (Admin)
@@ -99,9 +99,19 @@
 ### Filter Transactions
 - **Method:** `POST`
 - **URL:** `{{base_url}}/api/admin/filter`
-- **Request Body:**
+- **Request Body (not all fields are required):**
 ```json
 {
+  "transactionCode": "TXN123456",
+  "transactionType": "TRANSFER",
+  "transactionStatus": "SUCCESS",
+  "minAmount": 10000,
+  "maxAmount": 50000,
+  "keyword": "rent",
+  "fromDate": "2024-01-01T00:00:00",
+  "toDate": "2024-12-31T23:59:59",
+  "fromWalletId": 1,
+  "toWalletId": 2,
   "sortBy": "createdAt",
   "sortDirection": "DESC",
   "page": 0,
@@ -111,7 +121,7 @@
 - 🔐 **Authorization required**: Yes
 
 ## QR Code Endpoints
-### Get My QR Code
+### Generate QR Code
 - **Method:** `GET`
 - **URL:** `{{base_url}}/api/qrcode/myqrcode`
 - 🔐 **Authorization required**: Yes
@@ -152,12 +162,6 @@
 ```
 - 🔐 **Authorization required**: Yes
 
-### Wallet Summary
-- **Method:** `GET`
-- **URL:** `{{base_url}}/api/admin/wallet/summary`
-- 🔐 **Authorization required**: Yes
-  
-
 ## User Management Endpoints
 ### Search And List Users
 - **Method:** `POST`
@@ -170,8 +174,6 @@
 }
 ```
 - 🔐 **Authorization required**: Yes
-
-
 
 ### Detail User
 - **Method:** `GET`
@@ -202,7 +204,7 @@
 
 ### Unlock User
 - **Method:** `POST`
-- **URL:** `{{base_url}}/api/admin/user/{userId}/unlock`
+- **URL:** `{{base_url}}/api/admin/user/unlock`
 - **Request Body:**
 ```json
 {
